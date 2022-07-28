@@ -3,25 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Forecast results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='result.css') }}">
 </head>
 <body>
-    <h1>Main statistic</h1><br>
-    <h2>Data statistic</h2>
-    <p>Mean shows: {{ mean }}</p>
-    <p>Standart deviation: {{ std }}</p>
-    <p>Median shows: {{ median }}</p><br>
-    <h2>Models result</h2>
-    <p>Accurancy: {{ accurancy }}</p>
-    <p>Predict length: {{ predictLength }}</p>
-    <p>Model name: Holt-Winters model</p>
-    <p>Parameters:</p>
-    <li>alpha: {{alpha}}</li>
-    <li>beta: {{beta}}</li>
-    <li>gamma: {{gamma}}</li>
-    <p>Parameters accurancy function: CV score</p><br>
-    <h2>Link to important files</h2>
-    <a href={{ tableName }}>Table with predict</a>
-    <a href={{ plotName }}>Plot</a>
-    <a href={{ backlink }}>Back to main screen</a>
+    <div class="header">
+        <h1>Main statistic</h1>
+        <a href={{ tableName }}>Table with predict</a>
+        <a href={{ plotName }}>Plot</a>
+        <a href={{ backlink }}>Back to main screen</a>
+    </div>
+    <div class="left">
+        <h2 class="headerLeft">Models result</h2>
+        <p class="accurancy">Accurancy: {{ accurancy }}</p>
+        <p class="length">Predict length: {{ predictLength }}</p>
+        <p class="modelName">Model name: Holt-Winters model</p>
+        <p>Parameters:</p>
+        <li>alpha: {{alpha}}</li>
+        <li>beta: {{beta}}</li>
+        <li>gamma: {{gamma}}</li>
+        <p>Parameters accurancy function: CV score</p>
+    </div>
+    <div class="right">
+        <h2 class="headerRight">Data statistic</h2>
+        <p class="mean">Mean shows: {{ mean }}</p>
+        <p class="std">Standart deviation: {{ std }}</p>
+        <p class="median">Median shows: {{ median }}</p><br>
+    </div>
 </body>
 </html>

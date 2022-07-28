@@ -3,19 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <title>Forecast</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </head>
 <body>
-    <form action="" method="post">
-	    <label for="campaign">Campaign name</label><br>
-	    <input type="text" name="campaign" title="Гидрактив"><br>
-	    <input type="submit"><br>
-    </form>
-    <div class="idList">
-        {% if length != 0: %}
-            {% for keys, vals in links.items(): %}
-                <a href="{{ vals }}">Back to {{ keys }} result</a><br>
-            {% endfor %}
-        {% endif %}
+    <div class="grid-container">
+        <div class="header">
+            <h1 id="headerGreating">Welcome to shows forecaster!</h1>
+            <p id="mainInfo">
+                In this site page you can enter campaning name and find <br>
+                predict for shows number in this company. 
+            </p>
+        </div>
+        <div class="formForName">
+            <form action="" method="post">
+                <label for="campaign" class="campaignLabel"><br><br>Enter a campaign name</label><br>
+                <input type="text" name="campaign" class="campaignInput"><br>
+                <input type="submit" class="campaignSubmit"><br>
+            </form> 
+        </div>
+        <div class="formWithCheckbox">
+            <form action="" method="post">
+                <label for="campaign" class="geoLabel">Choise geo of campaign</label><br>
+                <select name="geoLabel" class="geoDropDown">
+                    <option value="RU">RU</option>
+                    <option value="UA">UA</option>
+                    <option value="BY">BY</option>
+                    <option value="KZ">KZ</option>
+                    <option value="AM">AM</option>
+                    <option value="KG">KG</option>
+                    <option value="MD">MD</option>
+                    <option value="AZ">AZ</option>
+                    <option value="IT">IT</option>
+                    <option value="ES">ES</option>
+                    <option value="DE">DE</option>
+                    <option value="GR">GR</option>
+                    <option value="RO">RO</option>
+                    <option value="BG">BG</option>
+                    <option value="CY">CY</option>
+                    <option value="PL">PL</option>
+                    <option value="AT">AT</option>
+                    <option value="VN">VN</option>
+                    <option value="PT">PT</option>
+                    <option value="HU">HU</option>
+                    <option value="GE">GE</option>
+                    <option value="US">US</option>
+                    <option value="CA">CA</option>
+                    <option value="BE">BE</option>
+                    <option value="GB">GB</option>
+                    <option value="DK">DK</option>
+                    <option value="LV">LV</option>
+                    <option value="LT">LT</option>
+                    <option value="NL">NO</option>
+                    <option value="RS">RS</option>
+                    <option value="SK">SK</option>
+                    <option value="SI">SI</option>
+                    <option value="TR">TR</option>
+                    <option value="FI">FI</option>
+                    <option value="FR">FR</option>
+                    <option value="HR">HR</option>
+                    <option value="ME">ME</option>
+                    <option value="CZ">CZ</option>
+                    <option value="CH">CH</option>
+                    <option value="SE">SE</option>
+                    <option value="EE">EE</option>
+                    <option value="TJ">TJ</option>
+                    <option value="TM">TM</option>
+                    <option value="IL">IL</option>
+                    <option value="IN">IN</option>
+                    <option value="ID">ID</option>
+                    <option value="KH">KH</option>
+                    <option value="CN">CN</option>
+                    <option value="AE">AE</option>
+                    <option value="SA">SA</option>
+                    <option value="TH">TH</option>
+                    <option value="KR">KR</option>
+                    <option value="JP">JP</option>
+                    <option value="EG">EG</option>
+                    <option value="CI">CI</option>
+                    <option value="GT">GT</option>
+                    <option value="DO">DO</option>
+                    <option value="AR">AR</option>
+                    <option value="BR">BR</option>
+                    <option value="AU">AU</option>
+                    <option value="NZ">NZ</option>
+                    <option value="CO">CO</option>
+                    <option value="MX">MX</option>
+                    <option value="PE">PE</option>
+                    <option value="MY">MY</option>
+                    <option value="PH">PH</option>
+                    <option value="HT">HT</option>
+                    <option value="MQ">MQ</option>
+                    <option value="MF">MF</option>
+                    <option value="GF">GF</option>
+                    <option value="VE">VE</option>
+                    <option value="CL">CL</option>
+                </select><br>
+                <label for="camName" class="camNameLabel">Write campaign name</label><br>
+                <input type="text" name="camName" class="camInput"><br>
+                <input type="submit" class="camSubmit">
+            </form>
+        </div>
+        <div class="lastPredict">
+            <div class="idList">
+                {% if length != 0: %}
+                    {% for keys, vals in links.items(): %}
+                        <a href="{{ vals }}">Back to {{ keys }} result</a><br>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
     </div>
 </body>
 </html>
+

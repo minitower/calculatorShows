@@ -8,7 +8,10 @@ from pathlib import Path
 app = Flask(__name__)
 
 if bool(os.environ.get('SERVER_INFO_CLEANER')) == True:
-    [i for i in os.walk('./resultsBin')]
+    dirTmpFiles = Path('./resultsBin')
+    tmpFilesList = [i for i in os.walk('./resultsBin')][-1][-1]
+    for i in tmpFilesList:
+        os.remove(dirTmpFiles / Path(i))
 
 @app.route("/", methods=['GET', 'POST'])
 def forecastServer():
@@ -60,7 +63,7 @@ def forecastServer():
 @app.route('/results/<campaign>', methods=['GET'])
 def lastResult(campaign):
     try:
-        with open(f'./resultsBin/{campaign}.pickle', 'wb') as f:
+        with open(f'./resultsBin/{campaign}.pickle', 'rb') as f:
             listArgs = pickle.load(f)
         res = make_response(render_template('result.html', 
                             accurancy=listArgs[0],
@@ -75,7 +78,7 @@ def lastResult(campaign):
                             plotName=url_for('plot', campaign=campaign),
                             campaign=campaign))
         return res
-    except io.UnsupportedOperation:
+    except EOFError:
         res = make_response(render_template('fake_result.html', 
                         campaign=campaign,
                         backlink=url_for('forecastServer')))
@@ -92,10 +95,10 @@ def notFound():
 @app.route("/plot/<campaign>", methods=['GET'])
 def plot(campaign):
     plotName = f'{campaign}.html'
-    return render_template(f'{plotName}')
+    return render_template(f'plot_{plotName}')
 
 @app.route("/table/<campaign>", methods=['GET'])
 def table(campaign):
     tableName = f'{campaign}.html'
-    return render_template(f'{tableName}')
+    return render_template(f'table_{tableName}')
 

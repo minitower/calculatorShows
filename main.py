@@ -67,13 +67,13 @@ def forecast(df, opt, n_preds):
     hw_forecast = HWPredict(df, opt, n_preds)
 
     forecast_arr = []
-    for i in range(int(len(df)/3)):
+    for i in range(-n_preds):
         forecast_arr.append(df['datetime'].values[-1]+pd.Timedelta(hours=i))
     forecast = pd.DataFrame(forecast_arr, columns=['datetime'])
-    forecast['forecast'] = hw_forecast.result[-len(forecast['datetime']):]
+    forecast['forecast'] = hw_forecast.result[-n_preds:]
     return forecast
 
-def plotBuilder(df, campaign, check, hw, forecast, save=True):
+def plotBuilder(df, campaign, check, hw, n_preds, forecast, save=True):
     fig = go.Figure()
 
     fig.add_trace(go.Scatter(x=df['datetime'].values, 
@@ -85,7 +85,7 @@ def plotBuilder(df, campaign, check, hw, forecast, save=True):
 
     fig.add_trace(go.Scatter(x=forecast['datetime'].values, 
                             y=forecast['forecast'].values,
-                            name=f'forecast for {50} values'))
+                            name=f'forecast for {n_preds} values'))
     fig.update_layout(
         font_family="Courier New",
         title_text=f'Forecast for campaign {campaign[0]} with accurancy {round(100-check, 10)}%'
@@ -137,7 +137,7 @@ def main(campaign):
     with open(f'./templates/table_{campaignSave}.html', 'w+') as f:
         f.write(df_save.to_html())
     #Build plot with HW result
-    plotBuilder(df, campaignSave, check, hw, predict)
+    plotBuilder(df, campaignSave, check, hw, n_preds, predict)
     print(f'Plot saved on plots/plot_{campaignSave}.html')
     return [accurancy, mean, std, median,
         n_preds, alpha, beta, gamma]
