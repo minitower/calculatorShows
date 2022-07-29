@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta charset="UTF8">
+       <title>Full calculator</title>
+       <link rel="stylesheet" href="{{ url_for('static', filename='full_calculator.css') }}">
+    </head>
+    <body>
+        <div class="grid-container">
+            <div class="header">
+                <h1 id="headerFullCalc"> Full calculator</h1>
+                <p id="introFullCalc">
+                    In this page you can fill table with necessary value
+                    and get predict of EPC for your campaign. For claculating
+                    you can set up your own parameters (for <b>bid</b>, <b>approve</b>, 
+                    <b>CR</b> and <b>CTR</b>) OR <b>just fill campaign id.</b>
+                </p>
+            </div>
+            <div class="customClac">
+                <form action="" method="post">
+                    <div class="bid">
+                        <label for="bid" class="bidLabel">Enter custom bid:</label><br>
+                            <input type="text" name="bid" class="bidInput">
+                    </div>  
+                    <div class="approve">
+                        <label for="approve" class="approveLabel">Enter custom approve:</label><br>
+                        <input type="text" name="approve" class="approveInput">
+                        <select name="approveDim" class="approveDropDown">
+                            <option value="%">%</option>
+                            <option value="int">fraction</option>
+                        </select>
+                    </div>    
+                    <div class="cr">
+                        <label for="cr" class="crLabel">
+                            Enter custom CR (Conversion Rate):
+                        </label><br>
+                        <input type="text" name="cr" class="crInput">
+                        <select name="crDim" class="crDropDown">
+                            <option value="%">%</option>
+                            <option value="int">fraction</option>
+                        </select>
+                    </div>
+                    <div class="ctr">
+                        <label for="ctr" class="ctrLabel">
+                            Enter custom CR (Conversion Rate):
+                        </label><br>
+                        <input type="text" name="ctr" class="ctrInput">
+                        <select name="ctrDim" class="ctrDropDown">
+                            <option value="%">%</option>
+                            <option value="int">fraction</option>
+                        </select>
+                    </div>
+                    <input type="submit" class="customCalcSubmit">
+                </form>
+            </div>
+            <div class="or">
+                <b id="or">OR</b>
+            </div>
+            <div class="campaignFullCalc">
+                <form action="" method="post">
+                    <label for="campaign" class="campaignLabel">
+                        Enter a campaign name:
+                    </label> <br>
+                    <input name="campaign" class="campaignLabel" type="text">
+                    <label for="campaignId" class="campaignIdLabel">
+                        Enter a campaign id:
+                    </label>
+                    <input name="campaignId" type="text" class="campaignIdInput">
+                    <input type="submit" class="fullCalcSubmit">
+                </form>
+            </div>
+            <div class="lastFullPredict">
+                <p id="lastFullPredict">Previous results of forecasting</p>
+                <div class="idList">
+                    {% if length != 0: %}
+                        {% for keys, vals in links.items(): %}
+                            <a href="{{ vals }}">Back to {{ keys }} result</a><br>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="footer">
+                <a id="footerLink" href="{{ url_for('forecastServer') }}">
+                    Back to main screen
+                </a>
+            </div>
+        </div>
+    </body>
+</html>

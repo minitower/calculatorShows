@@ -63,7 +63,19 @@ def forecastServer():
                 campaignDict = pickle.load(f)
         else:
             campaignDict = {}
-        return render_template('index.html', length=len(campaignDict), links=campaignDict)
+        return render_template('index.html', length=len(campaignDict), links=campaignDict, valsFoot=url_for('fullCalculator'))
+
+@app.route('/full_calculator', methods=['GET', 'POST'])
+def fullCalculator():
+    if request.method == 'POST':
+        return None
+    elif request.method == 'GET':
+        if os.path.exists('./resultsBin/campaignList.pickle'):
+            with open('./resultsBin/campaignList.pickle', 'rb') as f:
+                campaignDict = pickle.load(f)
+        else:
+            campaignDict = {}
+        return render_template('index.html', length=len(campaignDict), links=campaignDict, valsFoot=url_for('fullCalculator'))
 
 @app.route('/results/<campaign>', methods=['GET'])
 def lastResult(campaign):
