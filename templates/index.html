@@ -16,94 +16,45 @@
         </div>
         <div class="formForName">
             <form action="" method="post">
-                <label for="campaign" class="campaignLabel"><br><br>Enter a campaign name</label><br>
+                <label for="campaign" class="campaignLabel">Enter a campaign name</label><br>
                 <input type="text" name="campaign" class="campaignInput"><br>
+                <label for="pred_n" class="predLabel">Choise predict length:</label>
+                <select name="pred_n" class="predDropDown">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                    <option value="50">50</option>
+                    <option value="60">60</option>
+                    <option value="70">70</option>
+                    <option value="80">80</option>
+                    <option value="90">90</option>
+                    <option value="100">100</option>
+                </select><br>
+                <label for="accurancy" class="accurancyLabel">Choise minimal 
+                                    accurancy level for this model: </label>
+                <select name="accurancy" class="accurancyDropDown">
+                    <option value="0.85">85%</option>
+                    <option value="0.90">90%</option>
+                    <option value="0.95">95%</option>
+                    <option value="0.99">99%</option>
+                    <option value="0.9999">99.99%</option>
+                </select><br>
                 <input type="submit" class="campaignSubmit"><br>
             </form> 
         </div>
-        <div class="formWithCheckbox">
+        <div class="or">
+            <b id="or">OR</b>
+        </div>
+        <div class="forAdvId">
             <form action="" method="post">
-                <label for="campaign" class="geoLabel">Choise geo of campaign</label><br>
-                <select name="geoLabel" class="geoDropDown">
-                    <option value="RU">RU</option>
-                    <option value="UA">UA</option>
-                    <option value="BY">BY</option>
-                    <option value="KZ">KZ</option>
-                    <option value="AM">AM</option>
-                    <option value="KG">KG</option>
-                    <option value="MD">MD</option>
-                    <option value="AZ">AZ</option>
-                    <option value="IT">IT</option>
-                    <option value="ES">ES</option>
-                    <option value="DE">DE</option>
-                    <option value="GR">GR</option>
-                    <option value="RO">RO</option>
-                    <option value="BG">BG</option>
-                    <option value="CY">CY</option>
-                    <option value="PL">PL</option>
-                    <option value="AT">AT</option>
-                    <option value="VN">VN</option>
-                    <option value="PT">PT</option>
-                    <option value="HU">HU</option>
-                    <option value="GE">GE</option>
-                    <option value="US">US</option>
-                    <option value="CA">CA</option>
-                    <option value="BE">BE</option>
-                    <option value="GB">GB</option>
-                    <option value="DK">DK</option>
-                    <option value="LV">LV</option>
-                    <option value="LT">LT</option>
-                    <option value="NL">NO</option>
-                    <option value="RS">RS</option>
-                    <option value="SK">SK</option>
-                    <option value="SI">SI</option>
-                    <option value="TR">TR</option>
-                    <option value="FI">FI</option>
-                    <option value="FR">FR</option>
-                    <option value="HR">HR</option>
-                    <option value="ME">ME</option>
-                    <option value="CZ">CZ</option>
-                    <option value="CH">CH</option>
-                    <option value="SE">SE</option>
-                    <option value="EE">EE</option>
-                    <option value="TJ">TJ</option>
-                    <option value="TM">TM</option>
-                    <option value="IL">IL</option>
-                    <option value="IN">IN</option>
-                    <option value="ID">ID</option>
-                    <option value="KH">KH</option>
-                    <option value="CN">CN</option>
-                    <option value="AE">AE</option>
-                    <option value="SA">SA</option>
-                    <option value="TH">TH</option>
-                    <option value="KR">KR</option>
-                    <option value="JP">JP</option>
-                    <option value="EG">EG</option>
-                    <option value="CI">CI</option>
-                    <option value="GT">GT</option>
-                    <option value="DO">DO</option>
-                    <option value="AR">AR</option>
-                    <option value="BR">BR</option>
-                    <option value="AU">AU</option>
-                    <option value="NZ">NZ</option>
-                    <option value="CO">CO</option>
-                    <option value="MX">MX</option>
-                    <option value="PE">PE</option>
-                    <option value="MY">MY</option>
-                    <option value="PH">PH</option>
-                    <option value="HT">HT</option>
-                    <option value="MQ">MQ</option>
-                    <option value="MF">MF</option>
-                    <option value="GF">GF</option>
-                    <option value="VE">VE</option>
-                    <option value="CL">CL</option>
-                </select><br>
-                <label for="camName" class="camNameLabel">Write campaign name</label><br>
-                <input type="text" name="camName" class="camInput"><br>
+                <label for="campaign" class="advLabel">Choise advertiser ID</label><br>
+                <input type="text" name="advInput" class="advInput"><br>
                 <input type="submit" class="camSubmit">
             </form>
         </div>
         <div class="lastPredict">
+            <p id="lastPredict">Previous results of forecasting</p>
             <div class="idList">
                 {% if length != 0: %}
                     {% for keys, vals in links.items(): %}
@@ -111,6 +62,10 @@
                     {% endfor %}
                 {% endif %}
             </div>
+        </div>
+        <div class="footer">
+            <a id="footerHeading">Also you can calculate sum of shows, 
+                    clicks and postbacks campaign name</a>
         </div>
     </div>
 </body>

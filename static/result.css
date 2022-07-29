@@ -1,6 +1,6 @@
 body {
     background: dodgerblue linear-gradient(22deg, #2E0249, #570A57, deeppink) fixed;
-      color: white;
+    color: white;
     text-shadow: 0 1px 1px hsl(0 0% 0% / 20%);
     margin: 0px;    
     box-sizing: border-box;
@@ -9,14 +9,39 @@ body {
     font-weight: 300;
     padding: 0 calc(var(--size-bezel) * 3);
   }
+.grid-container {
+    display: grid;
+    grid-template-areas: 
+      'header header header header header header' 
+      'left left left right right right' 
+      'left left left right right right'
+      'footer footer footer footer footer footer';
+  } 
   
-  .header {
+.header, .left, .right, .footer{
+    padding: 10px;
+  }
+  
+.footer{
+  grid-area: footer;
+}
+
+
+.left {
+    grid-area: left;
+  }
+  
+.right {
+    grid-area: right;
+  }
+
+.header {
       grid-area: header;
       overflow: hidden;
       text-align: center;
   }
     
-  .header a {
+.header a {
       float: left;
       color: #f2f2f2;
       text-align: center;
@@ -25,38 +50,19 @@ body {
       font-size: 17px;
   }
     
-  .header a:hover {
+.header a:hover {
       background-color: #ddd;
       color: #570A57;
   }
   
-  .header h1 {
+.header h1 {
       font-weight: 900;
       color: #2E0249;
       font-size: 35px;
 }
   
-  .grid-container {
-      display: grid;
-      grid-template-areas: 
-        'header header header header header header' 
-        'left left left right right right' 
-        'left left left right right right';
-    } 
-    
-  .header, .left, .right {
-      padding: 10px;
-    }
-    
-  .headerLeft {
-      grid-area: left;
-    }
-    
-  .headerRight {
-      grid-area: right;
-    }
   
-  .input {
+.input {
       position: relative;
     }
 
@@ -66,12 +72,12 @@ body {
 
 }
                 
-  ol li {
+ol li {
       list-style-type: none;
       counter-increment: item;
     }
     
-  ol li:before {
+ol li:before {
       content: counter(item);
       margin-right: 5px;
       font-size: 80%;

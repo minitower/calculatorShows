@@ -1,0 +1,1 @@
+export FLASK_APP=server && cd .. && flask run --host=0.0.0.0

@@ -1,3 +1,4 @@
+from unittest import result
 from flask import *
 from main import *
 import pickle
@@ -17,7 +18,11 @@ if bool(os.environ.get('SERVER_INFO_CLEANER')) == True:
 def forecastServer():
     if request.method == 'POST':
         campaign=request.form.get('campaign')
-        result = main(campaign)
+        pred_n=int(request.form.get('pred_n'))
+        minAccurancy=float(request.form.get('accurancy'))
+        result = main(campaign, 
+                        pred_n=pred_n, 
+                        minAccurancy=minAccurancy)
         campaign=campaign.replace(' | ', '_')
         if len(result) == 1:
             res = make_response(redirect('/not_found'))
@@ -27,14 +32,15 @@ def forecastServer():
                             accurancy=result[0],
                             mean=result[1], std=result[2],
                             median=result[3], 
-                            predictLength=result[4],
+                            predictLength=pred_n,
                             alpha=result[5], 
                             beta=result[6],
                             gamma=result[7], 
                             tableName=url_for('table', campaign=campaign),
                             backlink=url_for('forecastServer'),
                             plotName=url_for('plot', campaign=campaign),
-                            campaign=campaign))
+                            campaign=campaign,
+                            sumShows=result[8]))
             with open(f'./resultsBin/{campaign}.pickle', 'wb') as f:
                 pickle.dump(result, f, protocol=pickle.HIGHEST_PROTOCOL)
             res.set_cookie('plotName', url_for('plot', campaign=campaign))
@@ -57,7 +63,6 @@ def forecastServer():
                 campaignDict = pickle.load(f)
         else:
             campaignDict = {}
-        print(campaignDict)
         return render_template('index.html', length=len(campaignDict), links=campaignDict)
 
 @app.route('/results/<campaign>', methods=['GET'])
@@ -76,7 +81,8 @@ def lastResult(campaign):
                             tableName=url_for('table', campaign=campaign),
                             backlink=url_for('forecastServer'),
                             plotName=url_for('plot', campaign=campaign),
-                            campaign=campaign))
+                            campaign=campaign,
+                            sumShows=listArgs[8]))
         return res
     except EOFError:
         res = make_response(render_template('fake_result.html', 
