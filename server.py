@@ -1,4 +1,3 @@
-from cv2 import minAreaRect
 from flask import *
 import pickle
 import os
@@ -8,6 +7,7 @@ from main import *
 from fullCalc import *
 
 app = Flask(__name__)
+load_dotenv()
 
 if bool(os.environ.get('SERVER_INFO_CLEANER')) == True:
     dirTmpFiles = Path('./resultsBin')
@@ -15,11 +15,22 @@ if bool(os.environ.get('SERVER_INFO_CLEANER')) == True:
     for i in tmpFilesList:
         os.remove(dirTmpFiles / Path(i))
 
+host=os.environ.get("HOST")
+user=os.environ.get("CLICKHOUSE_USERNAME")
+password=os.environ.get("PASSWORD")
 
 @app.route("/", methods=['GET', 'POST'])
 def forecastServer():
     if request.method == 'POST':
         campaign=request.form.get('campaign')
+        campaignId = request.form.get('campaignId')
+        print(campaign, campaignId)
+        if campaign is None and campaignId!='':
+            campaign=getCampaignById(host=host, 
+                                        user=user, 
+                                        password=password, 
+                                        campaignId=campaignId)
+            print('CAMPAIGN: ' + campaignId)
         pred_n=int(request.form.get('pred_n'))
         minAccurancy=float(request.form.get('accurancy'))
         result = main(campaign, 
@@ -34,7 +45,7 @@ def forecastServer():
                             accurancy=result[0],
                             mean=result[1], std=result[2],
                             median=result[3], 
-                            predictLength=pred_n,
+                            predictLength=int(pred_n/24),
                             alpha=result[5], 
                             beta=result[6],
                             gamma=result[7], 
@@ -72,32 +83,49 @@ def forecastServer():
 @app.route('/full_calculator', methods=['GET', 'POST'])
 def fullCalculator():
     if request.method == 'POST':
-        bid = float(request.form.get('bid'))
-        approve = float(request.form.get('approve'))
-        approveDim = request.form.get('approveDim')
-        cr = float(request.form.get('cr'))
-        crDim = request.form.get('crDim')
-        ctr = float(request.form.get('ctr'))
-        ctrDim = request.form.get('ctrDim')
-        if approveDim == '%':
-            approve = approve/100
-        if crDim == '%':
-            cr = cr/100
-        if ctrDim == '%':
-            ctr = ctr/100
-        epc=bid*cr*approve
-        ecpm=epc*ctr*10
-        print(request.form.get('accurancy'))
+        campaignId=request.form.get('campaignId')
+        if campaignId == '':
+            try:
+                bid = float(request.form.get('bid'))
+            except ValueError:
+                return redirect(url_for('valNotFound', value='bid'))
+            try:
+                approve = float(request.form.get('approve'))
+            except ValueError:
+                return redirect(url_for('valNotFound', value='approve'))
+            approveDim = request.form.get('approveDim')
+            try:
+                cr = float(request.form.get('cr'))
+            except ValueError:
+                return redirect(url_for('valNotFound', value='cr'))
+            crDim = request.form.get('crDim')
+            try: 
+                ctr = float(request.form.get('ctr'))
+            except ValueError:
+                return redirect(url_for('valNotFound', value='ctr'))
+            ctrDim = request.form.get('ctrDim')
+            if approveDim == '%':
+                approve = approve/100
+            if crDim == '%':
+                cr = cr/100
+            if ctrDim == '%':
+                ctr = ctr/100
+            epc=bid*cr*approve
+            ecpm=epc*ctr*10
+        else:
+            bid=0
+            cr=0
+            ctr=0
+            approve=0
+            epc=0
+            ecpm=0
         pred_n = int(request.form.get('pred_n'))
         minAccurancy = float(request.form.get('accurancy'))
 
-
-        #####TODO: make request and func for request with campaign id#####
-        campaignId=request.form.get('campaignId')
-
         resultDict = fullCalc(bid=bid, approve=approve, cr=cr, 
                                 ctr=ctr, pred_n=pred_n,
-                                minAccurancy=minAccurancy, ecpm=ecpm)
+                                minAccurancy=minAccurancy, ecpm=ecpm,
+                                campaignId=campaignId)
         campaign=resultDict['campaign']
         campaign=campaign.replace(' | ', '_')
         if len(resultDict.values()) == 1:
@@ -108,7 +136,7 @@ def fullCalculator():
                             accurancy=resultDict['accurancy'],
                             mean=resultDict['mean'], std=resultDict['std'],
                             median=resultDict['median'], 
-                            predictLength=resultDict['pred_n'],
+                            predictLength=int(resultDict['pred_n']/24),
                             alpha=resultDict['alpha'], 
                             beta=resultDict['beta'],
                             gamma=resultDict['gamma'], 
@@ -128,11 +156,11 @@ def fullCalculator():
             if os.path.exists('./resultsBin/fullCalcListCam.pickle'):
                 with open('./resultsBin/fullCalcListCam.pickle', 'rb') as f:
                     campaignDict = pickle.load(f)
-                campaignDict.update({campaign: url_for('fullLastResult', campaign=campaign)})
+                campaignDict.update({campaign: url_for('fullLastResult', campaigns=campaign)})
                 with open('./resultsBin/fullCalcListCam.pickle', 'wb') as f:
                     pickle.dump(campaignDict, f, protocol=pickle.HIGHEST_PROTOCOL)
             else:
-                campaignDict = {campaign: url_for('fullLastResult', campaign=campaign)}
+                campaignDict = {campaign: url_for('fullLastResult', campaigns=campaign)}
                 with open('./resultsBin/fullCalcListCam.pickle', 'wb') as f:
                     pickle.dump(campaignDict, f, protocol=pickle.HIGHEST_PROTOCOL)
         return res
@@ -172,7 +200,7 @@ def lastResult(campaign):
                         backlink=url_for('forecastServer')))
         return res
 
-@app.route('/full_results/<campaign>', methods=['GET'])
+@app.route('/full_results/<campaigns>', methods=['GET'])
 def fullLastResult(campaigns):
     try:
         with open(f'./resultsBin/full_{campaigns}.pickle', 'rb') as f:
@@ -226,3 +254,10 @@ def fullPlot(campaign):
 def fullTable(campaign):
     tableName = f'{campaign}.html'
     return render_template(f'fullTable_{tableName}')
+
+@app.route("/value_<value>_not_found", methods=['GET'])
+def valNotFound(value):
+    return render_template('value_not_found.html', 
+                            value=value, 
+                            backlink1=url_for('forecastServer'),
+                            backlink2=url_for('fullCalculator'))

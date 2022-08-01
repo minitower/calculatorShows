@@ -41,8 +41,8 @@ def loadDataLocal(path, campaign_name):
 
 def paramInit(df, x, callback=None):
     timeseriesCV = CVScore(df['shows'])
-    opt = minimize(timeseriesCV.timeseriesCVscore, x0=x, method='TNC', 
-                    bounds=((0, 1), (0, 1), (0, 1)), options={'maxiter': 1000},
+    opt = minimize(timeseriesCV.timeseriesCVscore, x0=x, method='Nelder-Mead', 
+                    bounds=((0, 1), (0, 1), (0, 1)), options={'maxiter': 10000},
                     callback=callback)
     return opt
 
@@ -73,7 +73,7 @@ def forecast(df, opt, n_preds):
     forecast = forecast.sort_values('datetime', ascending=False)
     return forecast
 
-def plotBuilder(df, campaign, check, hw, save=True, full=False):
+def plotBuilder(df, campaign, check, hw, full=False):
     fig = go.Figure()
 
     fig.add_trace(go.Scatter(x=df['datetime'].values, 
@@ -87,11 +87,10 @@ def plotBuilder(df, campaign, check, hw, save=True, full=False):
         font_family="Courier New",
         title_text=f'Forecast for campaign {campaign[0]} with accurancy {round(100-check, 10)}%'
     )
-    fig.write_html(f'plots/plot_{campaign}.html')
-    if save & full:
+    if full:
         fig.write_html(f'templates/fullPlot_{campaign}.html')
         print(f'Plot saved on templates/fullPlot_{campaign}.html')
-    if save:
+    else:
         fig.write_html(f'templates/plot_{campaign}.html')
         print(f'Plot saved on templates/plot_{campaign}.html')
     
@@ -114,7 +113,7 @@ def main(campaign, pred_n, minAccurancy, full=False):
     if df.empty:
         return ['error']
     mean=df['shows'].mean()
-    std=df['shows'].mean()
+    std=df['shows'].std()
     median=df['shows'].median()
     # Optimise Holt-Winters vector
     xArr = [[0,0,0], [0,0,1], [1,0,0], 

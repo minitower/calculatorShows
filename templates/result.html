@@ -16,7 +16,7 @@
         <div class="left">
             <h2 class="headerLeft">Models result</h2>
             <p class="accurancy">Accurancy: {{ accurancy }}</p>
-            <p class="length">Predict length: {{ predictLength }}</p>
+            <p class="length">Predict length: {{ predictLength }} days</p>
             <p class="modelName">Model name: Holt-Winters model</p>
             <p>Parameters:</p>
             <li>alpha: {{alpha}}</li>
@@ -32,7 +32,7 @@
         </div>
         <div class="footer">
             <h2 class="footerHeader">Results</h2>
-            <p class="sum">For {{ predictLength }} predict sum of shows is {{ sumShows }}</p>
+            <p class="sum">For {{ predictLength }} days predict sum of shows is {{ sumShows }}</p>
         </div>
     </div>
 </body>
