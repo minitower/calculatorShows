@@ -78,4 +78,5 @@ def fullCalc(bid, approve, cr, ctr,
         paramDict.update(dict(campaign=campaign, sumClicks=paramDict['sumShows']*ctr, 
                             sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
                             sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
+        print(paramDict)
         return paramDict
