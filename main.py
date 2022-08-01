@@ -1,3 +1,4 @@
+from matplotlib import markers
 import pandas as pd
 import clickhouse_driver as ch
 from dotenv import load_dotenv
@@ -23,9 +24,10 @@ def loadData(host, user, password, campaign_name):
     df = pd.DataFrame(sqlCH.execute(q))
     df.columns = ['datetime', 'shows', 'campaings']
     df['datetime'] = pd.to_datetime(df['datetime'])
-    df = df.sort_values('datetime', ascending=False)
+    df = df.sort_values('datetime')
     df = df.drop(df.loc[df['shows'] == 0].index)\
             .reset_index().drop('index', axis=1)
+    df.to_csv('./test/data.csv')
     return df
 
 def loadDataLocal(path, campaign_name):
@@ -62,30 +64,34 @@ def validation(df, hw):
 
 def forecast(df, opt, n_preds):
     hw_forecast = HWPredict(df, opt, n_preds)
-
     forecast_arr = list(df['datetime'].values)
     for i in range(1, n_preds+1):
         forecast_arr.append(df['datetime'].values[-1]+pd.Timedelta(hours=i))
     forecast = pd.DataFrame(forecast_arr, columns=['datetime'])
     forecast['forecast'] = hw_forecast.result
     forecast['markers'] = [0]*len(hw_forecast.result)
-    forecast.loc[forecast['datetime'] >= df['datetime'].values[-1], 'markers'] = 1
-    forecast = forecast.sort_values('datetime', ascending=False)
+    forecast.loc[forecast['datetime'] > df['datetime'].values[-1], 'markers'] = 1
+    forecast = forecast.sort_values('datetime')
     return forecast
 
-def plotBuilder(df, campaign, check, hw, full=False):
+def plotBuilder(df, campaign, check, full=False):
     fig = go.Figure()
-
-    fig.add_trace(go.Scatter(x=df['datetime'].values, 
-                            y=df['shows'].values,
+    forecast = df.loc[df['markers'] == 1]
+    predict = df.loc[df['markers'] != 1]
+    fig.add_trace(go.Scatter(x=predict['datetime'].values, 
+                            y=predict['shows'].values,
                             name=f'Campaigns {campaign[0]}'))
 
-    fig.add_trace(go.Scatter(x=df['datetime'].values,
-                                y=hw['forecast'].values, 
+    fig.add_trace(go.Scatter(x=predict['datetime'].values,
+                                y=predict['forecast'].values, 
                                 name='Predict Holt-Winters'))
+
+    fig.add_trace(go.Scatter(x=forecast['datetime'].values,
+                                y=forecast['forecast'].values, 
+                                name=f'Forecast Holt-Winters for {int(len(forecast)/24)} days'))
     fig.update_layout(
         font_family="Courier New",
-        title_text=f'Forecast for campaign {campaign[0]} with accurancy {round(100-check, 10)}%'
+        title_text=f'Forecast for campaign {campaign[0]} with accurancy {round(check, 10)}%'
     )
     if full:
         fig.write_html(f'templates/fullPlot_{campaign}.html')
@@ -94,8 +100,6 @@ def plotBuilder(df, campaign, check, hw, full=False):
         fig.write_html(f'templates/plot_{campaign}.html')
         print(f'Plot saved on templates/plot_{campaign}.html')
     
-
-
 
 def main(campaign, pred_n, minAccurancy, full=False):
     #WARN: for this script is nercessury: 
@@ -141,9 +145,9 @@ def main(campaign, pred_n, minAccurancy, full=False):
         return ['error 2']
     predict = forecast(df, opt, pred_n)
     predict.loc[predict['forecast'] <= 0, 'forecast'] = 0
-    df_save = pd.concat([df[['datetime', 'shows']], 
-                        predict[['datetime', 'forecast']]],
-                        ignore_index=True)
+    df_save = predict[['datetime', 'forecast', 'markers']].join(df[['datetime', 'shows']].set_index('datetime'), 
+                                            on='datetime')
+    df_save=df_save.sort_values(by='datetime').reset_index(drop=True)
     sumShows = df_save.loc[df_save['shows'].isna() == True]['forecast'].sum()
     campaignSave=campaign.replace(' | ', '_')
     
@@ -154,6 +158,6 @@ def main(campaign, pred_n, minAccurancy, full=False):
         with open(f'./templates/table_{campaignSave}.html', 'w+') as f:
             f.write(df_save.to_html())
     #Build plot with HW result
-    plotBuilder(df, campaignSave, check, predict, full)
+    plotBuilder(df_save, campaignSave, accurancy, full)
     return [accurancy, mean, std, median,
         pred_n, alpha, beta, gamma, sumShows]

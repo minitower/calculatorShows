@@ -78,7 +78,7 @@ b {
     "left or or middle right right"
     "left or or middle right right"
     "footer footer footer footer footer footer";
-  grid-column-gap: 10%;
+  grid-column-gap: 5%;
   grid-row-gap: 5%;
   /* grid-column-gap: 10px; - if you want gap between the columns */
 }
