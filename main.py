@@ -122,7 +122,7 @@ def main(campaign, pred_n, minAccurancy, full=False):
     accurancy=0
     print('MIN: ', minAccurancy)
     while accurancy <= minAccurancy and n<len(xArr):
-        opt = paramInit(df, xArr[n], callback=MinimizeStopper(60))
+        opt = paramInit(df, xArr[n], callback=MinimizeStopper(60).__call__)
         alpha=opt.x[0]
         beta=opt.x[1]
         gamma=opt.x[2]

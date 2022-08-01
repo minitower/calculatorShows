@@ -15,7 +15,5 @@ class MinimizeStopper(object):
         if elapsed > self.max_sec:
             warnings.warn("Terminating optimization: time limit reached",
                           TookTooLong)
-            xk=['err','err','err']
-            return xk
         else:
             print("Elapsed: %.3f sec" % elapsed)
