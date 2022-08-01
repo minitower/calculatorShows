@@ -42,7 +42,7 @@ def loadDataLocal(path, campaign_name):
 def paramInit(df, x, callback=None):
     timeseriesCV = CVScore(df['shows'])
     opt = minimize(timeseriesCV.timeseriesCVscore, x0=x, method='TNC', 
-                    bounds=((0, 1), (0, 1), (0, 1)), options={'maxiter': 10000},
+                    bounds=((0, 1), (0, 1), (0, 1)), options={'maxiter': 1000},
                     callback=callback)
     return opt
 
@@ -90,8 +90,10 @@ def plotBuilder(df, campaign, check, hw, save=True, full=False):
     fig.write_html(f'plots/plot_{campaign}.html')
     if save & full:
         fig.write_html(f'templates/fullPlot_{campaign}.html')
+        print(f'Plot saved on templates/fullPlot_{campaign}.html')
     if save:
         fig.write_html(f'templates/plot_{campaign}.html')
+        print(f'Plot saved on templates/plot_{campaign}.html')
     
 
 
@@ -154,6 +156,5 @@ def main(campaign, pred_n, minAccurancy, full=False):
             f.write(df_save.to_html())
     #Build plot with HW result
     plotBuilder(df, campaignSave, check, predict, full)
-    print(f'Plot saved on plots/plot_{campaignSave}.html')
     return [accurancy, mean, std, median,
         pred_n, alpha, beta, gamma, sumShows]

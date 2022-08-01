@@ -99,9 +99,7 @@ def fullCalculator():
                                 ctr=ctr, pred_n=pred_n,
                                 minAccurancy=minAccurancy, ecpm=ecpm)
         campaign=resultDict['campaign']
-        print(campaign)
         campaign=campaign.replace(' | ', '_')
-        print(campaign)
         if len(resultDict.values()) == 1:
             res = make_response(redirect('/not_found'))
             res.set_cookie('campaign', campaign)
@@ -219,3 +217,12 @@ def table(campaign):
     tableName = f'{campaign}.html'
     return render_template(f'table_{tableName}')
 
+@app.route("/full_plot/<campaign>", methods=['GET'])
+def fullPlot(campaign):
+    plotName = f'{campaign}.html'
+    return render_template(f'fullPlot_{plotName}')
+
+@app.route("/full_table/<campaign>", methods=['GET'])
+def fullTable(campaign):
+    tableName = f'{campaign}.html'
+    return render_template(f'fullTable_{tableName}')

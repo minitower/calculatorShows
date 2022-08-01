@@ -64,19 +64,19 @@ def fullCalc(bid, approve, cr, ctr,
                                 bid=bid, 
                                 ecpm=ecpm,
                                 step=step)
-    result = main(campaign=campaign, 
+    paramDict = main(campaign=campaign, 
                 pred_n=pred_n, 
                 minAccurancy=minAccurancy,
                 full=True)
     
-    if result[-1] == 'error 2':
-        fullCalc(bid=bid, approve=approve, cr=cr, ctr=ctr,
+    if paramDict[0] == 'error 2':
+        paramDict = fullCalc(bid=bid, approve=approve, cr=cr, ctr=ctr,
                     pred_n=pred_n, minAccurancy=minAccurancy,
                     ecpm=ecpm, step=step+1)
-    else:
-        paramDict = resultParser(result=result)
+    
+    elif paramDict[0] != 'error 2':
+        paramDict = resultParser(result=paramDict)
         paramDict.update(dict(campaign=campaign, sumClicks=paramDict['sumShows']*ctr, 
                             sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
                             sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
-        print(paramDict)
-        return paramDict
+    return paramDict
