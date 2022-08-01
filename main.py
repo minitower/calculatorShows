@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 from sklearn.metrics import accuracy_score
 
 from hw import HoltWinters
+from minmizeStopper import *
 from cross_val import CVScore
 
 
@@ -38,10 +39,11 @@ def loadDataLocal(path, campaign_name):
             .reset_index().drop('index', axis=1)
     return df
 
-def paramInit(df, x):
+def paramInit(df, x, callback=None):
     timeseriesCV = CVScore(df['shows'])
     opt = minimize(timeseriesCV.timeseriesCVscore, x0=x, method='TNC', 
-                    bounds=((0, 1), (0, 1), (0, 1)), options={'maxiter': 10000})
+                    bounds=((0, 1), (0, 1), (0, 1)), options={'maxiter': 10000},
+                    callback=callback)
     return opt
 
 def HWPredict(df, opt, n_preds):
@@ -71,7 +73,7 @@ def forecast(df, opt, n_preds):
     forecast = forecast.sort_values('datetime', ascending=False)
     return forecast
 
-def plotBuilder(df, campaign, check, hw, save=True):
+def plotBuilder(df, campaign, check, hw, save=True, full=False):
     fig = go.Figure()
 
     fig.add_trace(go.Scatter(x=df['datetime'].values, 
@@ -86,12 +88,15 @@ def plotBuilder(df, campaign, check, hw, save=True):
         title_text=f'Forecast for campaign {campaign[0]} with accurancy {round(100-check, 10)}%'
     )
     fig.write_html(f'plots/plot_{campaign}.html')
+    if save & full:
+        fig.write_html(f'templates/fullPlot_{campaign}.html')
     if save:
         fig.write_html(f'templates/plot_{campaign}.html')
+    
 
 
 
-def main(campaign, pred_n, minAccurancy):
+def main(campaign, pred_n, minAccurancy, full=False):
     #WARN: for this script is nercessury: 
     #1. Data length must be more then 24 dots (1 dot==1 hour)
     # Load enviroment variables
@@ -116,28 +121,39 @@ def main(campaign, pred_n, minAccurancy):
     n=0
     accurancy=0
     print('MIN: ', minAccurancy)
-    while accurancy <= minAccurancy or n>len(xArr):
-        opt = paramInit(df, xArr[n])
+    while accurancy <= minAccurancy and n<len(xArr):
+        opt = paramInit(df, xArr[n], callback=MinimizeStopper(60))
         alpha=opt.x[0]
         beta=opt.x[1]
         gamma=opt.x[2]
+        if alpha == 'err' and \
+                    beta=='err' and \
+                    gamma=='err':
+            continue
         # Predict value for custom data
         hw = HWPredict(df, opt, 0)
         check = validation(df, hw)
         accurancy=round(1-check, pred_n)
-        print(accurancy)
+        print(accurancy, n)
         n+=1
-
+    if accurancy <= minAccurancy:
+        return ['error 2']
     predict = forecast(df, opt, pred_n)
+    predict.loc[predict['forecast'] <= 0, 'forecast'] = 0
     df_save = pd.concat([df[['datetime', 'shows']], 
                         predict[['datetime', 'forecast']]],
                         ignore_index=True)
     sumShows = df_save.loc[df_save['shows'].isna() == True]['forecast'].sum()
     campaignSave=campaign.replace(' | ', '_')
-    with open(f'./templates/table_{campaignSave}.html', 'w+') as f:
-        f.write(df_save.to_html())
+    
+    if full:
+        with open(f'./templates/fullTable_{campaignSave}.html', 'w+') as f:
+            f.write(df_save.to_html())
+    else:
+        with open(f'./templates/table_{campaignSave}.html', 'w+') as f:
+            f.write(df_save.to_html())
     #Build plot with HW result
-    plotBuilder(df, campaignSave, check, predict)
+    plotBuilder(df, campaignSave, check, predict, full)
     print(f'Plot saved on plots/plot_{campaignSave}.html')
     return [accurancy, mean, std, median,
         pred_n, alpha, beta, gamma, sumShows]

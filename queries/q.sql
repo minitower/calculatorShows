@@ -1,5 +1,5 @@
-SELECT datetime, shows, name FROM
-(SELECT datetime, sum(ad_shows) as shows, advertiser_id 
+SELECT datetime, shows, name 
+FROM (SELECT datetime, sum(ad_shows) as shows, advertiser_id 
 FROM luckyfeed.ad_shows
 WHERE advertiser_id in (SELECT user_id 
 								FROM ads.campaigns 
