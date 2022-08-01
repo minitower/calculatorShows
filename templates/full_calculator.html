@@ -108,13 +108,17 @@
                         Enter a campaign id:
                     </label>
                     <input name="campaignId" type="text" class="campaignIdInput">
+                    <label for="cpa" class="campaignIdLabel">
+                        Enter CPA (Cost Per Action):
+                    </label>
+                    <input name="cpa" type="text" class="campaignIdInput">
                     <div class="modelInfo">
                         <label for="pred_n" class="predLabel">Choise predict length:</label>
                         <div class="pLenSel">
                             <select name="pred_n" class="predDropDown">
                                 <option value="24">1 day</option>
                                 <option value="48">2 day</option>
-                                <option value="72">3 day</option>
+                                <option value="72" selected>3 day</option>
                                 <option value="96">4 day</option>
                                 <option value="120">5 day</option>
                                 <option value="144">6 day</option>
@@ -130,7 +134,7 @@
                             <select name="accurancy" class="accurancyDropDown">
                                 <option value="0.85">85%</option>
                                 <option value="0.90">90%</option>
-                                <option value="0.95"disabled>95%</option>
+                                <option value="0.95" selected>95%</option>
                                 <option value="0.99">99%</option>
                                 <option value="0.9999">99.99%</option>
                             </select><br>

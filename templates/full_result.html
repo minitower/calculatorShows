@@ -15,12 +15,14 @@
         </div>
         <div class="left">
             <h2 class="headerLeft">Input data</h2>
-            <p id="bid">Bid: {{ bid }}</p>
-            <p id="approve">Approve: {{ approve }}</p>
-            <p id="cr">CR: {{ cr }}</p>
-            <p id="ctr">CTR: {{ ctr }}</p>
-            <p id="epc">EPC: {{ epc }}</p>
-            <p id="ecpm">eCPM: {{ ecpm }}</p>
+            <div id="inputData">
+                <p id="bid">Bid: {{ bid }}</p>
+                <p id="approve">Approve: {{ approve }}</p>
+                <p id="cr">CR: {{ cr }}</p>
+                <p id="ctr">CTR: {{ ctr }}</p>
+                <p id="epc">EPC: {{ epc }}</p>
+                <p id="ecpm">eCPM: {{ ecpm }}</p>
+            </div>
         </div>
         <div class="center">
             <h2 class="headerCenter">Models result</h2>
@@ -35,18 +37,18 @@
         </div>
         <div class="right">
             <h2 class="headerRight">Data statistic</h2>
-            <p class="mean">Mean shows: {{ mean }}</p>
-            <p class="std">Standart deviation: {{ std }}</p>
-            <p class="median">Median shows: {{ median }}</p><br>
+            <p class="mean">Mean shows (for 1 hour): {{ mean }}</p>
+            <p class="std">Standart deviation (for 1 hour): {{ std }}</p>
+            <p class="median">Median shows (for 1 hour): {{ median }}</p><br>
         </div>
         <div class="footer">
             <h2 class="footerHeader">Results</h2>
-            <p class="sum">For {{ predictLength }} days predict sum of shows is {{ sumShows }}</p>
-            <p class="clicks">With this information sum of clicks by period 
-                                {{ predictLength }} if {{ sumClicks }}</p>
+            <p class="sum">For {{ predictLength }} days predict sum of shows is <b>{{ sumShows }} shows</b></p>
+            <p class="clicks">With this information sum of clicks by interval of 
+                                {{ predictLength }} day if <b>{{ sumClicks }} clicks</b></p>
             <p class="postbacks">
-                So, with CR and approve we have {{ sumPostbacksUnconf }} unconfirmed leads and 
-                {{sumPostbacksConf}} confirmed postbacks
+                So, with CR and approve we have <b>{{ sumPostbacksUnconf }} unconfirmed postbacks</b> unconfirmed leads and 
+                <b>{{sumPostbacksConf}} confirmed postbacks</b>
             </p>
         </div>
     </div>

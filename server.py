@@ -80,11 +80,13 @@ def forecastServer():
                                 links=campaignDict, valsFoot=url_for('fullCalculator'))
 
 
+
 @app.route('/full_calculator', methods=['GET', 'POST'])
 def fullCalculator():
     if request.method == 'POST':
         campaignId=request.form.get('campaignId')
-        if campaignId == '':
+        cpa=request.form.get('cpa')
+        if campaignId == '' or campaignId is None:
             try:
                 bid = float(request.form.get('bid'))
             except ValueError:
@@ -111,9 +113,9 @@ def fullCalculator():
             if ctrDim == '%':
                 ctr = ctr/100
             epc=bid*cr*approve
-            ecpm=epc*ctr*10
+            ecpm=epc*ctr*1000
         else:
-            bid=0
+            bid=cpa
             cr=0
             ctr=0
             approve=0
@@ -123,8 +125,8 @@ def fullCalculator():
         minAccurancy = float(request.form.get('accurancy'))
 
         resultDict = fullCalc(bid=bid, approve=approve, cr=cr, 
-                                ctr=ctr, pred_n=pred_n,
-                                minAccurancy=minAccurancy, ecpm=ecpm,
+                                ctr=ctr, epc=epc, ecpm=ecpm, pred_n=pred_n,
+                                minAccurancy=minAccurancy,
                                 campaignId=campaignId)
         campaign=resultDict['campaign']
         campaign=campaign.replace(' | ', '_')
@@ -132,22 +134,29 @@ def fullCalculator():
             res = make_response(redirect('/not_found'))
             res.set_cookie('campaign', campaign)
         else:
-            res = make_response(render_template('result.html', 
-                            accurancy=resultDict['accurancy'],
-                            mean=resultDict['mean'], std=resultDict['std'],
-                            median=resultDict['median'], 
+            res = make_response(render_template('full_result.html', 
+                            bid='{:,}'.format(round(resultDict['bid'], 3)).replace(',', ' '),
+                            approve='{:,}'.format(round(resultDict['approve'], 3)).replace(',', ' '),
+                            cr='{:,}'.format(round(resultDict['cr'],3)).replace(',', ' '),
+                            ctr=round(resultDict['ctr'], 3),
+                            epc=round(resultDict['epc'], 3),
+                            ecpm=round(resultDict['ecpm'], 3),
+                            accurancy=round(resultDict['accurancy'], 3),
+                            mean='{:,}'.format(round(resultDict['mean'],3)).replace(',', ' '), 
+                            std='{:,}'.format(round(resultDict['std'], 3)).replace(',', ' '),
+                            median='{:,}'.format(round(resultDict['median'], 3)).replace(',', ' '), 
                             predictLength=int(resultDict['pred_n']/24),
-                            alpha=resultDict['alpha'], 
-                            beta=resultDict['beta'],
-                            gamma=resultDict['gamma'], 
+                            alpha=round(resultDict['alpha'], 3), 
+                            beta=round(resultDict['beta'],3),
+                            gamma=round(resultDict['gamma'],3), 
                             tableName=url_for('fullTable', campaign=campaign),
                             backlink=url_for('forecastServer'),
                             plotName=url_for('fullPlot', campaign=campaign),
                             campaign=campaign,
-                            sumShows=resultDict['sumShows'],
-                            sumClicks=resultDict['sumClicks'],
-                            sumPostbacksUnconf=resultDict['sumPostbacksUnconf'],
-                            sumPostbacksConf=resultDict['sumPostbacksConf']))
+                            sumShows='{:,}'.format(int(resultDict['sumShows'])).replace(',', ' '),
+                            sumClicks='{:,}'.format(int(resultDict['sumClicks'])).replace(',', ' '),
+                            sumPostbacksUnconf='{:,}'.format(int(resultDict['sumPostbacksUnconf'])).replace(',', ' '),
+                            sumPostbacksConf='{:,}'.format(int(resultDict['sumPostbacksConf'])).replace(',', ' '),))
             with open(f'./resultsBin/full_{campaign}.pickle', 'wb') as f:
                     pickle.dump(resultDict, f, protocol=pickle.HIGHEST_PROTOCOL)
             res.set_cookie('plotName', url_for('plot', campaign=campaign))

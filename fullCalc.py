@@ -1,4 +1,5 @@
 # Open libs
+from ldap3 import NONE
 import pandas as pd
 import clickhouse_driver as ch
 from dotenv import load_dotenv
@@ -11,6 +12,7 @@ from main import *
 def loadCheckData(host, user, password,
                   bid, ecpm, step):
     campaignsPriority = ['RU', 'KZ', 'UA', 'BY']
+    campaigns=None
 
     with open('./queries/q2.sql', 'r') as f:
         q = f.read()
@@ -44,7 +46,6 @@ def resultParser(result):
                 beta=result[6], gamma=result[7],
                 sumShows=result[8])
 
-
 def getCampaignById(host, user, password, campaignId):
     with open('./queries/q_campaignId.sql', 'r') as f:
         q = f.read()
@@ -56,14 +57,34 @@ def getCampaignById(host, user, password, campaignId):
     df = pd.DataFrame(sqlCH.execute(q))
     return df[0][0]
 
-def fullCalc(bid, approve, cr, ctr,
-             pred_n, minAccurancy,
-             ecpm, campaignId, step=0):
+
+def getCampaignStatByName(host, user, password, campaign):
+    with open('./queries/q_campaign_stat.sql', 'r') as f:
+        q = f.read()
+    q = q.replace('${NAME}', str(campaign))
+
+    sqlCH = ch.Client(host=host,
+                      user=user,
+                      password=password)
+    df = pd.DataFrame(sqlCH.execute(q))
+    print(df)
+    df.columns=['name', 'bid', 'approve', 'ctr', 'cr', 'epc', 'ecpm']
+    bid = df['bid'].mean()
+    approve = df['approve'].mean()
+    ctr = df['ctr'].mean()
+    cr = df['cr'].mean()
+    epc = df['epc'].mean()
+    ecpm = df['ecpm'].mean()
+    return [bid, approve, ctr, cr, epc, ecpm]
+
+
+def fullCalc(bid, approve, cr, ctr, epc, ecpm,
+             pred_n, minAccurancy, campaignId, step=0):
     load_dotenv()
     host = os.environ.get("HOST")
     user = os.environ.get("CLICKHOUSE_USERNAME")
     password = os.environ.get("PASSWORD")
-    if campaignId == '':
+    if campaignId == '' or campaignId is None:
         campaign = loadCheckData(host=host,
                                  user=user,
                                  password=password,
@@ -76,22 +97,30 @@ def fullCalc(bid, approve, cr, ctr,
                          full=True)
 
         if paramDict[0] == 'error 2' and step <= 3:
-            paramDict = fullCalc(bid=bid, approve=approve, cr=cr, ctr=ctr,
-                                 pred_n=pred_n, minAccurancy=minAccurancy,
-                                 ecpm=ecpm, step=step+1)
+            paramDict = fullCalc(bid=bid, approve=approve, ctr=ctr,
+                                    cr=cr, epc=epc, ecpm=ecpm, pred_n=pred_n, 
+                                    minAccurancy=minAccurancy, step=step+1)
 
         elif paramDict[0] == 'error 2':
             paramDict = {'err': "Predict can't be calculated"}
         elif paramDict[0] != 'error 2':
             paramDict = resultParser(result=paramDict)
-            paramDict.update(dict(campaign=campaign, sumClicks=paramDict['sumShows']*ctr,
-                                  sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
-                                  sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
+            paramDict.update(dict(bid=bid, approve=ctr, ctr=ctr, 
+                                    cr=cr, epc=epc, ecpm=ecpm,
+                                    campaign=campaign, sumClicks=paramDict['sumShows']*ctr,
+                                    sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
+                                    sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
     else:
         campaign = getCampaignById(host=host,
                                  user=user,
                                  password=password,
                                  campaignId=campaignId)
+        print(campaign)
+        bid, approve, ctr,\
+        cr, epc, ecpm = getCampaignStatByName(host=host,
+                                                user=user,
+                                                password=password,
+                                                campaign=campaign)
         paramDict = main(campaign=campaign,
                          pred_n=pred_n,
                          minAccurancy=minAccurancy,
@@ -102,7 +131,9 @@ def fullCalc(bid, approve, cr, ctr,
 
         elif paramDict[0] != 'error 2':
             paramDict = resultParser(result=paramDict)
-            paramDict.update(dict(campaign=campaign, sumClicks=paramDict['sumShows']*ctr,
-                                  sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
-                                  sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
+            paramDict.update(dict(bid=bid, approve=ctr, ctr=ctr, 
+                                cr=cr, epc=epc, ecpm=ecpm, campaign=campaign,
+                                sumClicks=paramDict['sumShows']*ctr,
+                                sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
+                                sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
     return paramDict

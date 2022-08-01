@@ -1,7 +1,7 @@
 with bid as (SELECT ${BID})
 SELECT name, advertiser_id, sum(ad_shows) as shows,
 		sum(postbacks_confirmed_count) as postbacks,
-		1500*postbacks/shows*1000 as ecpm
+		${BID}*postbacks/shows*10000 as ecpm
 FROM (SELECT toDayOfYear(datetime) as date,
 			advertiser_id, 
 			sum(ad_shows) as ad_shows,
