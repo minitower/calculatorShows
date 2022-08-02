@@ -148,6 +148,7 @@ def fullCalculator():
                                 minAccurancy=minAccurancy,
                                 campaignId=campaignId,
                                 campaignName=campaignName)
+        print(resultDict)
         campaign=resultDict['campaign']
         campaign=campaign.replace(' | ', '_')
         if len(resultDict.values()) == 1:

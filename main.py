@@ -20,12 +20,13 @@ def loadData(host, user, password, campaign_name):
                         password=password)
 
     df = pd.DataFrame(sqlCH.execute(q))
-    df.columns = ['datetime', 'shows', 'campaings']
+    df.columns = ['datetime', 'shows']
     df['datetime'] = pd.to_datetime(df['datetime'])
     df = df.sort_values('datetime')
     df = df.drop(df.loc[df['shows'] == 0].index)\
             .reset_index().drop('index', axis=1)
     df.to_csv('./test/data.csv')
+    print(df)
     return df
 
 def loadDataLocal(path, campaign_name):
@@ -112,6 +113,14 @@ def main(campaign, pred_n, minAccurancy, full=False):
     #df = loadDataLocal('./test.csv', campaign)
     df = loadData(host=host, user=user, password=password,
                     campaign_name=campaign)
+    if len(df) <= 200:
+        df2 = pd.DataFrame(pd.to_datetime(pd.date_range(start=df['datetime'].values[0], 
+                                                        end=df['datetime'].values[-1], 
+                                                        freq='1H')))
+        df2 = df2.join(df.set_index('datetime'), on=0)
+        df = df2.copy()
+        df.columns = ['datetime', 'shows']
+        df['shows'] = df['shows'].interpolate(method='nearest').astype(int)
     if df.empty:
         return ['error']
     mean=df['shows'].mean()
