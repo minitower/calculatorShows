@@ -1,1 +1,1 @@
-SELECT campaign_name FROM ads.ads c WHERE campaign_id == ${CAMPAIGNS_ID};
+SELECT DISTINCT campaign_name FROM ads.ads c WHERE campaign_id == ${CAMPAIGNS_ID};
