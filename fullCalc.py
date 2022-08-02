@@ -1,5 +1,4 @@
 # Open libs
-from ldap3 import NONE
 import pandas as pd
 import clickhouse_driver as ch
 from dotenv import load_dotenv

@@ -1,11 +1,9 @@
-from matplotlib import markers
 import pandas as pd
 import clickhouse_driver as ch
 from dotenv import load_dotenv
 import os
 from scipy.optimize import minimize
 import plotly.graph_objects as go
-from sklearn.metrics import accuracy_score
 
 from hw import HoltWinters
 from minmizeStopper import *
