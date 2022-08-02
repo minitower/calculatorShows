@@ -149,6 +149,11 @@ def fullCalculator():
                                 campaignId=campaignId,
                                 campaignName=campaignName)
         print(resultDict)
+        try:
+            if resultDict['err'] == "No shows":
+                return make_response(redirect('/not_found'))
+        except IndexError:
+            pass
         campaign=resultDict['campaign']
         campaign=campaign.replace(' | ', '_')
         if len(resultDict.values()) == 1:
@@ -269,7 +274,7 @@ def fullLastResult(campaigns):
 def notFound(campaign):
     return render_template('false_result.html', 
                             campaign=campaign, 
-                            backlink=url_for("forecastServer"))
+                            backlink=url_for("fullCalculator"))
 
 @app.route("/plot/<campaign>", methods=['GET'])
 def plot(campaign):

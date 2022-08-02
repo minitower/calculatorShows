@@ -120,10 +120,14 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
         elif campaignName is not None:
             campaign=campaignName
         print(campaign)
-        bid, approve, ctr, cr, epc, ecpm = getCampaignStatByName(host=host,
-                                                user=user,
-                                                password=password,
-                                                campaign=campaign)
+        try:
+            bid, approve, ctr, cr, epc, ecpm = getCampaignStatByName(host=host,
+                                                    user=user,
+                                                    password=password,
+                                                    campaign=campaign)
+        except ValueError:
+            return {'err': "No shows"}
+            
         paramDict = main(campaign=campaign,
                          pred_n=pred_n,
                          minAccurancy=minAccurancy,
@@ -134,7 +138,7 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
 
         elif paramDict[0] != 'error 2':
             paramDict = resultParser(result=paramDict)
-            paramDict.update(dict(bid=bid, approve=ctr*100, ctr=ctr*100, 
+            paramDict.update(dict(bid=bid, approve=approve*100, ctr=ctr*100, 
                                 cr=cr*100, epc=epc, ecpm=ecpm, campaign=campaign,
                                 sumClicks=paramDict['sumShows']*ctr,
                                 sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,

@@ -41,10 +41,16 @@ def loadDataLocal(path, campaign_name):
     return df
 
 def paramInit(df, x, callback=None):
-    timeseriesCV = CVScore(df['shows'])
-    opt = minimize(timeseriesCV.timeseriesCVscore, x0=x, method='Nelder-Mead', 
-                    bounds=((0, 1), (0, 1), (0, 1)), options={'maxiter': 10000},
-                    callback=callback)
+    try:
+        timeseriesCV = CVScore(df['shows'], n_split=3)
+        opt = minimize(timeseriesCV.timeseriesCVscore, x0=x, method='Nelder-Mead', 
+                        bounds=((0, 1), (0, 1), (0, 1)), options={'maxiter': 10000},
+                        callback=callback)
+    except IndexError:
+        timeseriesCV = CVScore(df['shows'], n_split=2)
+        opt = minimize(timeseriesCV.timeseriesCVscore, x0=x, method='Nelder-Mead', 
+                        bounds=((0, 1), (0, 1), (0, 1)), options={'maxiter': 10000},
+                        callback=callback)
     return opt
 
 def HWPredict(df, opt, n_preds):
@@ -123,16 +129,19 @@ def main(campaign, pred_n, minAccurancy, full=False):
         df['shows'] = df['shows'].interpolate(method='nearest').astype(int)
     if df.empty:
         return ['error']
-    mean=df['shows'].mean()
-    std=df['shows'].std()
-    median=df['shows'].median()
+    df_daily = df.copy()
+    df_daily['datetime'] = pd.to_datetime(df_daily['datetime']).dt.date
+    df_daily = df_daily.groupby('datetime').sum()
+    mean=df_daily['shows'].mean()
+    std=df_daily['shows'].std()
+    median=df_daily['shows'].median()
     # Optimise Holt-Winters vector
     xArr = [[0,0,0], [0,0,1], [1,0,0], 
             [0,0,1], [0,1,1], [1,0,1], 
             [1,1,0], [1,1,1]]
     n=0
     accurancy=0
-    print('MIN: ', minAccurancy)
+    print(df)
     while accurancy <= minAccurancy and n<len(xArr):
         opt = paramInit(df, xArr[n], callback=MinimizeStopper(60).__call__)
         alpha=opt.x[0]

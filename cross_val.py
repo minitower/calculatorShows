@@ -5,8 +5,9 @@ import numpy as np
 from hw import HoltWinters
 
 class CVScore:
-    def __init__(self, data):
+    def __init__(self, data, n_split):
         self.data = data
+        self.n_split=n_split
 
     def timeseriesCVscore(self, x):
         # вектор ошибок
@@ -16,7 +17,7 @@ class CVScore:
         alpha, beta, gamma = x
 
         # задаём число фолдов для кросс-валидации
-        tscv = TimeSeriesSplit(n_splits=3) 
+        tscv = TimeSeriesSplit(n_splits=self.n_split) 
 
         for train, test in tscv.split(values):
 
