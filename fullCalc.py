@@ -54,6 +54,7 @@ def getCampaignById(host, user, password, campaignId):
                       user=user,
                       password=password)
     df = pd.DataFrame(sqlCH.execute(q))
+    print(df)
     return df[0][0]
 
 
