@@ -5,6 +5,7 @@ from pathlib import Path
 
 from main import *
 from fullCalc import *
+from checker import *
 
 app = Flask(__name__)
 load_dotenv()
@@ -24,7 +25,13 @@ def forecastServer():
     if request.method == 'POST':
         campaign=request.form.get('campaign')
         campaignId = request.form.get('campaignId')
-        print(campaign, campaignId)
+        check = Checker(campaignName=campaign, campaignId=campaignId)
+        if campaignId is not None:
+            if not check.checkId() and campaign is None:
+                return make_response(redirect(url_for('notFound')))
+        if campaign is not None:
+            if not check.checkName() and campaignId is None:
+                return make_response(redirect(url_for('notFound')))
         if campaign is None and campaignId!='':
             campaign=getCampaignById(host=host, 
                                         user=user, 
