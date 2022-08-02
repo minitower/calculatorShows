@@ -78,12 +78,13 @@ def getCampaignStatByName(host, user, password, campaign):
 
 
 def fullCalc(bid, approve, cr, ctr, epc, ecpm,
-             pred_n, minAccurancy, campaignId, step=0):
+             pred_n, minAccurancy, campaignId, campaignName, 
+             step=0):
     load_dotenv()
     host = os.environ.get("HOST")
     user = os.environ.get("CLICKHOUSE_USERNAME")
     password = os.environ.get("PASSWORD")
-    if campaignId == '' or campaignId is None:
+    if campaignId is None and campaignName is None:
         campaign = loadCheckData(host=host,
                                  user=user,
                                  password=password,
@@ -110,13 +111,14 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
                                     sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
                                     sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
     else:
-        campaign = getCampaignById(host=host,
-                                 user=user,
-                                 password=password,
-                                 campaignId=campaignId)
-        print(campaign)
-        bid, approve, ctr,\
-        cr, epc, ecpm = getCampaignStatByName(host=host,
+        if campaignId is not None:
+            campaign = getCampaignById(host=host,
+                                     user=user,
+                                     password=password,
+                                     campaignId=campaignId)
+        elif campaignName is not None:
+            campaign=campaignName
+        bid, approve, ctr, cr, epc, ecpm = getCampaignStatByName(host=host,
                                                 user=user,
                                                 password=password,
                                                 campaign=campaign)

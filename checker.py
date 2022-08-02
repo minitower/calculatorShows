@@ -2,9 +2,13 @@ import pandas as pd
 import clickhouse_driver as ch
 
 class Checker:
-    def __init__(self, campaignId=None, campaignName=None):
-        self.campaignId = campaignId
-        self.campaignName =- campaignName
+    def __init__(self, campaign=None):
+        try:
+            self.campaignId = int(campaign)
+            self.campaignName=None
+        except ValueError:
+            self.campaignName = campaign
+            self.campaignId = None
         
     def checkId(self):
         with open('./queries/check/q_campaign_check.sql', 'r') as f:
@@ -33,3 +37,4 @@ class Checker:
             return False
         else:
             return True
+    

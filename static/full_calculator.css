@@ -27,6 +27,11 @@ body {
   text-align: center;
 }
 
+#invisable1, 
+#invisable2 {
+  visibility: hidden;
+}
+
 .customCalcSubmit,
 .fullCalcSubmit {
   background-color: #c2fbd7;

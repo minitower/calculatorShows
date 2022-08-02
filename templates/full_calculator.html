@@ -20,6 +20,7 @@
             </div>
             <div class="customClac">
                 <form action="" method="post">
+                    <input name="custom" value="True" id="invisable1" disabled>
                     <div class="bid">
                         <label for="bid" class="bidLabel">
                             Enter custom CPA (Cost Per Action):
@@ -74,7 +75,7 @@
                             <select name="pred_n" class="predDropDown">
                                 <option value="24">1 day</option>
                                 <option value="48">2 day</option>
-                                <option value="72">3 day</option>
+                                <option value="72" selected>3 day</option>
                                 <option value="96">4 day</option>
                                 <option value="120">5 day</option>
                                 <option value="144">6 day</option>
@@ -90,7 +91,7 @@
                             <select name="accurancy" class="accurancyDropDown">
                                 <option value="0.85">85%</option>
                                 <option value="0.90">90%</option>
-                                <option value="0.95">95%</option>
+                                <option value="0.95" selected>95%</option>
                                 <option value="0.99">99%</option>
                                 <option value="0.9999">99.99%</option>
                             </select><br>
@@ -104,8 +105,9 @@
             </div>
             <div class="campaignFullCalc">
                 <form action="" method="post">
-                    <label for="campaignId" class="campaignIdLabel">
-                        Enter a campaign id:
+                    <input name="custom" value="False" id="invisable2" disabled>
+                    <label for="campaignId" class="campaignIdLabel" required>
+                        Enter a campaign id/name:
                     </label>
                     <input name="campaignId" type="text" class="campaignIdInput">
                     <label for="cpa" class="campaignIdLabel">
@@ -152,12 +154,6 @@
                         {% endfor %}
                     {% endif %}
                 </div>
-            </div>
-
-            <div class="footer">
-                <a id="footerLink" href="{{ url_for('forecastServer') }}">
-                    Back to main screen
-                </a>
             </div>
         </div>
     </body>
