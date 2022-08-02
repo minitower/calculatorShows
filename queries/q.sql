@@ -1,9 +1,9 @@
-SELECT datetime, shows, name 
-FROM (SELECT datetime, sum(ad_shows) as shows, advertiser_id 
+SELECT datetime, shows, campaign_name 
+FROM (SELECT datetime, sum(ad_shows) as shows, ad_id 
 FROM luckyfeed.ad_shows
-WHERE advertiser_id in (SELECT user_id 
-								FROM ads.campaigns 
-								WHERE name LIKE '%${NAME}%')
-GROUP BY datetime, advertiser_id) asu2
-LEFT JOIN (SELECT user_id, name FROM ads.campaigns) c ON c.user_id == asu2.advertiser_id
-WHERE name LIKE '%${NAME}%'
+WHERE ad_id in (SELECT ad_id 
+				FROM ads.ads 
+				WHERE campaign_name LIKE '%${NAME}%')
+GROUP BY datetime, ad_id) asu2
+LEFT JOIN (SELECT ad_id, campaign_name FROM ads.ads) c ON c.ad_id == asu2.ad_id
+WHERE campaign_name LIKE '%${NAME}%';
