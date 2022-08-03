@@ -1,0 +1,54 @@
+/* NEW MENU */
+
+.sidenav {
+  height: 100%;
+  width: 160px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #a393eb;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+.sidenav a {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #27296d;
+  display: block;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+  background-color: darkmagenta;
+}
+
+.main {
+  margin-left: 160px; /* Same as the width of the sidenav */
+  font-size: 28px; /* Increased text to enable scrolling */
+  padding: 0px 10px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+/* END NEW MENU */
+
+body {
+  background-color:#fff1bc;
+}
+
+.header {
+  text-align: center;
+  color: #6a9c78;
+}
+
+p {
+  color: #446e5c;
+  margin-block: 10px;
+  text-indent: 20px;
+}

@@ -128,7 +128,9 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
         except ValueError:
             return {'err': "No shows"}
             
-        paramDict = main(campaign=campaign,
+        paramDict, meanClicks, stdClicks, \
+            medianClicks, meanPostbacks, \
+                stdPostbacks, medianPostbacks = mainAll(campaign=campaign,
                          pred_n=pred_n,
                          minAccurancy=minAccurancy,
                          full=True)
@@ -143,4 +145,6 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
                                 sumClicks=paramDict['sumShows']*ctr,
                                 sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
                                 sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
-    return paramDict
+    return [paramDict, meanClicks, stdClicks, 
+            medianClicks, meanPostbacks, 
+                stdPostbacks, medianPostbacks]

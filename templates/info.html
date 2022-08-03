@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta charset="UTF8">
+       <title>Full calculator</title>
+       <link rel="stylesheet" href="{{ url_for('static', filename='info.css') }}">
+       <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <div class="sidenav">
+            <a href="{{ url_for('listResult') }}">History of predict</a>
+            <a href="{{ url_for('fullCalculator') }}">Full calculator</a>
+            <a href="{{ url_for('info') }}">Information</a>
+        </div>
+        <div class="main">
+            <div class="infoBlock">
+                <h1 class="header">Info about forecast model</h1> 
+                <p id="modelInfo">
+                    For forecast used <b>Holt-Winters model</b> with learning on real data with <b>cross-validation scoring</b> (CV scoring).
+                    Combination of this methods give mean accurancy of model over then 99%. Approximation of error function builded
+                    with <b>Nelder-Mead algorithm</b>.
+                </p>
+                <p id="hwInfo">
+                    <b>Holt-Winters</b> is a model of <b>time series</b> behavior. Forecasting always requires a model, 
+                    and Holt-Winters is a way to model three aspects of the time series: <b>a typical value</b> (average), 
+                    <b>a slope</b> (trend) over time, and <b>a cyclical repeating pattern</b> (seasonality).
+                </p>
+                <p id="cvInfo">
+                    <b>Cross-validation scoring</b> starts by shuffling the data (to prevent any unintentional ordering errors) and splitting it 
+                    into <i>k</i> folds. Then <i>k</i> models are fit on of the data (called the <b>training split</b>) and evaluated on of the data 
+                    (called the <b>test split</b>). The results from each evaluation are averaged together for a <b>final score</b>, then the 
+                    final model is fit on the entire dataset for operationalization.
+                </p>
+                <p id="nmInfo">
+                    <b>The Nelder–Mead method</b> is a commonly applied numerical method used to find the minimum or maximum of an objective function in a multidimensional 
+                    space. It is a <b>direct search method</b> (based on function comparison) and is often applied to nonlinear optimization 
+                    problems for which derivatives may not be known. However, the <b>Nelder–Mead technique</b> is a heuristic search method 
+                    that can converge to non-stationary points on problems that can be solved by alternative methods.
+                </p>
+                <p id="forecast">
+                    All forecaster values (shows, clicks and postbacks) are <b>independent</b> in context of Holt-Winters modeling.
+                    This values for this model rather more then time series and stat for learning on it
+                </p>
+            </div>
+        </div>
+</html>

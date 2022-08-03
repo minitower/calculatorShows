@@ -1,5 +1,5 @@
 SELECT datetime, SUM(shows) 
-FROM (SELECT datetime, sum(ad_shows) as shows, ad_id 
+FROM (SELECT datetime, sum(${MODE}) as shows, ad_id 
 FROM luckyfeed.ad_shows
 WHERE ad_id in (SELECT ad_id 
 				FROM ads.ads 
