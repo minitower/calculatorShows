@@ -41,9 +41,30 @@
             </div>
             <div class="dataStat">
                 <h2 id="dataStatHead">Data statistic</h2>
-                <p id="mean"><b class="bold">Mean shows (for 1 day):</b> {{ mean }}</p>
-                <p id="std"><b class="bold">Standart deviation (for 1 day):</b> {{ std }}</p>
-                <p id="median"><b class="bold">Median shows (for 1 day):</b> {{ median }}</p><br>
+                <table id="dataTable">
+                    <th class="headerTable">Parameter name</th>
+                    <th class="headerTable">Mean</th>
+                    <th class="headerTable">Standart deviation</th>
+                    <th class="headerTable">Median</th>
+                    <tr class="rowTable">
+                        <td class="paramName">Shows</td>
+                        <td class="valueTable">{{ mean }}</td>
+                        <td class="valueTable">{{ std }}</td>
+                        <td class="valueTable">{{ median }}</td>
+                    </tr>
+                    <tr class="rowTable">
+                        <td class="paramName">Clicks</td>
+                        <td class="valueTable">{{ meanClicks }}</td>
+                        <td class="valueTable">{{ stdClicks }}</td>
+                        <td class="valueTable">{{ medianClicks }}</td>
+                    </tr>
+                    <tr class="rowTable">
+                        <td class="paramName">Postbacks</td>
+                        <td class="valueTable">{{ meanPost }}</td>
+                        <td class="valueTable">{{ stdPost }}</td>
+                        <td class="valueTable">{{ medianPost }}</td>
+                    </tr>
+                </table>
             </div>
             <div class="result">
                 <h2 id="resultHead">Results</h2>

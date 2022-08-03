@@ -183,12 +183,18 @@ def mainAll(campaign, pred_n, minAccurancy, full=False):
     df_save = df_save.drop('forecast', axis=1)
     tmp = main(campaign, pred_n, minAccurancy, full, mode='clicks')
     tmp_df = tmp.pop(-1)
+    meanClicks=tmp[1]
+    stdClicks=tmp[2]
+    medianClicks=tmp[3]
     tmp_df['clicks_forecast'] = tmp_df['forecast'].astype(int).copy()
     df_save = df_save.join(tmp_df[['clicks', 'datetime', 
                                     'clicks_forecast']].set_index('datetime'), 
                                     on='datetime')
     tmp = main(campaign, pred_n, minAccurancy, full, mode='postbacks')
     tmp_df = tmp.pop(-1)
+    meanPostbacks=tmp[1]
+    stdPostbacks=tmp[2]
+    medianPostbacks=tmp[3]
     tmp_df['postbacks_forecast'] = tmp_df['forecast'].astype(int).copy()
     df_save = df_save.join(tmp_df[['postbacks', 'postbacks_forecast', 
                                     'datetime']].set_index('datetime'), 
@@ -203,4 +209,4 @@ def mainAll(campaign, pred_n, minAccurancy, full=False):
     else:
         with open(f'./templates/tables/table_{campaignSave}.html', 'w+') as f:
             f.write(df_save.to_html())
-    return d
+    return [d, meanClicks, stdClicks, medianClicks, meanPostbacks, stdPostbacks, medianPostbacks]

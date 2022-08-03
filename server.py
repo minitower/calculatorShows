@@ -143,7 +143,9 @@ def fullCalculator():
             ecpm=epc*ctr*1000
         pred_n = int(request.form.get('pred_n'))
         minAccurancy = float(request.form.get('accurancy'))
-        resultDict = fullCalc(bid=bid, approve=approve, cr=cr, 
+        resultDict, meanClicks, stdClicks, \
+            medianClicks, meanPostbacks, \
+                stdPostbacks, medianPostbacks = fullCalc(bid=bid, approve=approve, cr=cr, 
                                 ctr=ctr, epc=epc, ecpm=ecpm, pred_n=pred_n,
                                 minAccurancy=minAccurancy,
                                 campaignId=campaignId,
@@ -168,9 +170,15 @@ def fullCalculator():
                             epc=round(resultDict['epc'], 3),
                             ecpm=round(resultDict['ecpm'], 3),
                             accurancy=round(resultDict['accurancy'], 3),
-                            mean='{:,}'.format(round(resultDict['mean'],3)).replace(',', ' '), 
-                            std='{:,}'.format(round(resultDict['std'], 3)).replace(',', ' '),
-                            median='{:,}'.format(round(resultDict['median'], 3)).replace(',', ' '), 
+                            mean='{:,}'.format(int(resultDict['mean'])).replace(',', ' '), 
+                            std='{:,}'.format(int(resultDict['std'])).replace(',', ' '),
+                            median='{:,}'.format(int(resultDict['median'])).replace(',', ' '), 
+                            meanClicks='{:,}'.format(int(meanClicks)).replace(',', ' '), 
+                            stdClicks='{:,}'.format(int(stdClicks)).replace(',', ' '),
+                            medianClicks='{:,}'.format(int(medianClicks)).replace(',', ' '), 
+                            meanPost='{:,}'.format(int(meanPostbacks)).replace(',', ' '), 
+                            stdPost='{:,}'.format(int(stdPostbacks)).replace(',', ' '),
+                            medianPost='{:,}'.format(int(medianPostbacks)).replace(',', ' '), 
                             predictLength=int(resultDict['pred_n']/24),
                             alpha=round(resultDict['alpha'], 3), 
                             beta=round(resultDict['beta'],3),
