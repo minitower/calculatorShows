@@ -4,9 +4,15 @@
        <meta charset="UTF8">
        <title>Full calculator</title>
        <link rel="stylesheet" href="{{ url_for('static', filename='full_calculator.css') }}">
+       <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
-        <div class="grid-container">
+        <div class="sidenav">
+            <a href="{{ url_for('listResult') }}">History of predict</a>
+            <a href="{{ url_for('fullCalculator') }}">Full calculator</a>
+            <a href="{{ url_for('info') }}">Information</a>
+        </div>
+        <div class="main">
             <div class="header">
                 <h1 id="headerFullCalc">
                     Full calculator
@@ -18,94 +24,9 @@
                     <b>CR</b> and <b>CTR</b>) OR <b>just fill campaign id.</b>
                 </p>
             </div>
-            <div class="customClac">
-                <form action="" method="post">
-                    <input name="custom" value="True" id="invisable1" disabled>
-                    <div class="bid">
-                        <label for="bid" class="bidLabel">
-                            Enter custom CPA (Cost Per Action):
-                        </label><br>
-                            <input type="text" name="bid" class="bidInput">
-                    </div>  
-                    <div class="approve">
-                        <label for="approve" class="approveLabel">
-                            Enter custom approve:
-                        </label><br>
-                        <input type="text" name="approve" class="approveInput">
-                        <label for="approveDim" class="approveDimLabel">
-                            Dimension:
-                        </label>
-                        <select name="approveDim" class="approveDropDown">
-                            <option value="%">%</option>
-                            <option value="int">fraction</option>
-                        </select>
-                        <span class="focus"></span>
-                    </div>    
-                    <div class="cr">
-                        <label for="cr" class="crLabel">
-                            Enter custom CR (Conversion Rate):
-                        </label><br>
-                        <input type="text" name="cr" class="crInput">
-                        <label for="crDim" class="crDimLabel">
-                            Dimension: 
-                        </label>
-                        <select name="crDim" class="crDropDown">
-                            <option value="%">%</option>
-                            <option value="int">fraction</option>
-                        </select>
-                        <span class="focus"></span>
-                    </div>
-                    <div class="ctr">
-                        <label for="ctr" class="ctrLabel">
-                            Enter custom CTR (Click-Through Rate):
-                        </label><br>
-                        <input type="text" name="ctr" class="ctrInput">
-                        <label for="ctrDim" class="ctrDimLabel">
-                            Dimension: 
-                        </label>
-                        <select name="ctrDim" class="ctrDropDown">
-                            <option value="%">%</option>
-                            <option value="int">fraction</option>
-                        </select>
-                        <span class="focus"></span>
-                    </div>
-                    <div class="modelInfo">
-                        <label for="pred_n" class="predLabel">Choise predict length:</label>
-                        <div class="pLenSel">
-                            <select name="pred_n" class="predDropDown">
-                                <option value="24">1 day</option>
-                                <option value="48">2 day</option>
-                                <option value="72" selected>3 day</option>
-                                <option value="96">4 day</option>
-                                <option value="120">5 day</option>
-                                <option value="144">6 day</option>
-                                <option value="168">7 day</option>
-                                <option value="192">8 day</option>
-                                <option value="216">9 day</option>
-                                <option value="240">10 day</option>
-                            </select><br>
-                        </div>
-                        <label for="accurancy" class="accurancyLabel">Choise minimal 
-                                            accurancy level for this model: </label>
-                        <div class="accurancySel">
-                            <select name="accurancy" class="accurancyDropDown">
-                                <option value="0.85">85%</option>
-                                <option value="0.90">90%</option>
-                                <option value="0.95" selected>95%</option>
-                                <option value="0.99">99%</option>
-                                <option value="0.9999">99.99%</option>
-                            </select><br>
-                        </div>
-                    </div>
-                    <input type="submit" class="customCalcSubmit">
-                </form>
-            </div>
-            <div class="or">
-                <b id="or">OR</b>
-            </div>
             <div class="campaignFullCalc">
                 <form action="" method="post">
-                    <input name="custom" value="False" id="invisable2" disabled>
+                    <input name="custom" value="False" id="invisable2" disabled><br></br>
                     <label for="campaignId" class="campaignIdLabel" required>
                         Enter a campaign id/name:
                     </label>
@@ -145,6 +66,8 @@
                     <input type="submit" class="fullCalcSubmit">
                 </form>
             </div>
+        </div>
+            
             <div class="lastFullPredict">
                 <p id="lastFullPredict">Previous results of forecasting</p>
                 <div class="idList">

@@ -3,6 +3,8 @@ import pickle
 import os
 from pathlib import Path
 
+from pystache import render
+
 from main import *
 from fullCalc import *
 from checker import *
@@ -177,7 +179,9 @@ def fullCalculator():
                             gamma=round(resultDict['gamma'],3), 
                             tableName=url_for('fullTable', campaign=campaign),
                             backlink=url_for('forecastServer'),
-                            plotName=url_for('fullPlot', campaign=campaign),
+                            plotNameShows=url_for('fullPlotShows', campaign=campaign),
+                            plotNameClicks=url_for('fullPlotClicks', campaign=campaign),
+                            plotNamePostbacks=url_for('fullPlotPostbacks', campaign=campaign),
                             campaign=campaign,
                             sumShows='{:,}'.format(int(resultDict['sumShows'])).replace(',', ' '),
                             sumClicks='{:,}'.format(int(resultDict['sumClicks'])).replace(',', ' '),
@@ -257,7 +261,9 @@ def fullLastResult(campaigns):
                             gamma=round(dictArgs['gamma'],3), 
                             tableName=url_for('fullTable', campaign=campaigns),
                             backlink=url_for('forecastServer'),
-                            plotName=url_for('fullPlot', campaign=campaigns),
+                            plotNameShows=url_for('fullPlotShows', campaign=campaigns),
+                            plotNameClicks=url_for('fullPlotClicks', campaign=campaigns),
+                            plotNamePostbacks=url_for('fullPlotPostbacks', campaign=campaigns),
                             campaign=campaigns,
                             sumShows='{:,}'.format(int(dictArgs['sumShows'])).replace(',', ' '),
                             sumClicks='{:,}'.format(int(dictArgs['sumClicks'])).replace(',', ' '),
@@ -276,25 +282,50 @@ def notFound(campaign):
                             campaign=campaign, 
                             backlink=url_for("fullCalculator"))
 
+@app.route('/info', methods=['GET'])
+def info():
+    return render_template('info.html')
+
+@app.route('/lastResult', methods=['GET'])
+def listResult():
+    if os.path.exists('./resultsBin/fullCalcListCam.pickle'):
+        with open('./resultsBin/fullCalcListCam.pickle', 'rb') as f:
+            fullCalcDict = pickle.load(f)
+    else:
+        fullCalcDict = {}
+    return render_template('last_predict.html', 
+                                length=len(fullCalcDict), 
+                                links=fullCalcDict)
+
 @app.route("/plot/<campaign>", methods=['GET'])
 def plot(campaign):
     plotName = f'{campaign}.html'
-    return render_template(f'plot_{plotName}')
+    return render_template(f'plots/plot_{plotName}')
 
 @app.route("/table/<campaign>", methods=['GET'])
 def table(campaign):
     tableName = f'{campaign}.html'
-    return render_template(f'table_{tableName}')
+    return render_template(f'tables/table_{tableName}')
 
-@app.route("/full_plot/<campaign>", methods=['GET'])
-def fullPlot(campaign):
+@app.route("/full_plot_shows/<campaign>", methods=['GET'])
+def fullPlotShows(campaign):
     plotName = f'{campaign}.html'
-    return render_template(f'fullPlot_{plotName}')
+    return render_template(f'plots/fullPlot_shows_{plotName}')
+
+@app.route("/full_plot_clicks/<campaign>", methods=['GET'])
+def fullPlotClicks(campaign):
+    plotName = f'{campaign}.html'
+    return render_template(f'plots/fullPlot_clicks_{plotName}')
+
+@app.route("/full_plot_postbacks/<campaign>", methods=['GET'])
+def fullPlotPostbacks(campaign):
+    plotName = f'{campaign}.html'
+    return render_template(f'plots/fullPlot_postbacks_{plotName}')
 
 @app.route("/full_table/<campaign>", methods=['GET'])
 def fullTable(campaign):
     tableName = f'{campaign}.html'
-    return render_template(f'fullTable_{tableName}')
+    return render_template(f'tables/fullTable_{tableName}')
 
 @app.route("/value_<value>_not_found", methods=['GET'])
 def valNotFound(value):

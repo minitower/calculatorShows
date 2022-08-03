@@ -128,7 +128,7 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
         except ValueError:
             return {'err': "No shows"}
             
-        paramDict = main(campaign=campaign,
+        paramDict = mainAll(campaign=campaign,
                          pred_n=pred_n,
                          minAccurancy=minAccurancy,
                          full=True)

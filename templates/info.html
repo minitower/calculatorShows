@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta charset="UTF8">
+       <title>Full calculator</title>
+       <link rel="stylesheet" href="{{ url_for('static', filename='info.css') }}">
+       <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <div class="sidenav">
+            <a href="{{ url_for('listResult') }}">History of predict</a>
+            <a href="{{ url_for('fullCalculator') }}">Full calculator</a>
+            <a href="{{ url_for('info') }}">Information</a>
+        </div>
+        <div class="main">
+            <div class="infoBlock">
+                <p>
+                    This site can work in <b>3 modes</b>:
+                </p>
+                <ol type='a'>
+                    <li>
+                        Predict with known bid and campaign ID/name (one field)
+                    </li>
+                    <li>
+                        Predict with custom params (custom bid, approve, cr and ctr)
+                    </li>
+                    <li>
+                        Predict only shows for some campaign ID/name
+                    </li>
+                </ol>
+                <p>
+                    For all this mode you can navigate by menu in left of screen.
+                    Calculator (now) run in development mode, so this app can't 
+                    be protected to some cyberattack (for example, DDOS, MitM attack and so on)
+                </p>
+    
+            </div>
+        </div>
+</html>

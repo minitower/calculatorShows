@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta charset="UTF8">
+       <title>Full calculator</title>
+       <link rel="stylesheet" href="{{ url_for('static', filename='last_predict.css') }}">
+       <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <div class="sidenav">
+            <a href="{{ url_for('listResult') }}">History of predict</a>
+            <a href="{{ url_for('fullCalculator') }}">Full calculator</a>
+            <a href="{{ url_for('info') }}">Information</a>
+        </div>
+        <div class="main">   
+            <div class="lastFullPredict">
+                <p id="lastFullPredict">Previous results of forecasting</p>
+                <div class="idList">
+                    {% if length != 0: %}
+                        {% for keys, vals in links.items(): %}
+                            <a href="{{ vals }}">Back to {{ keys }} result</a><br>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
