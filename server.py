@@ -152,7 +152,7 @@ def fullCalculator():
         try:
             if resultDict['err'] == "No shows":
                 return make_response(redirect('/not_found'))
-        except IndexError:
+        except KeyError:
             pass
         campaign=resultDict['campaign']
         campaign=campaign.replace(' | ', '_')
