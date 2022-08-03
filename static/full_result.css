@@ -7,7 +7,7 @@
   z-index: 1;
   top: 0;
   left: 0;
-  background-color: #111;
+  background-color: #a393eb;
   overflow-x: hidden;
   padding-top: 20px;
 }
@@ -16,12 +16,13 @@
   padding: 6px 8px 6px 16px;
   text-decoration: none;
   font-size: 25px;
-  color: #818181;
+  color: #27296d;
   display: block;
 }
 
 .sidenav a:hover {
   color: #f1f1f1;
+  background-color: darkmagenta;
 }
 
 .main {
@@ -38,7 +39,7 @@
 /* END NEW MENU */
 
 body {
-  background: dodgerblue linear-gradient(22deg, #2E0249, #570A57, deeppink) fixed;
+  background: dodgerblue linear-gradient(22deg, #1a2c5b, #3e4e88, #b8dff0) fixed;
   color: white;
   text-shadow: 0 1px 1px hsl(0 0% 0% / 20%);
   margin: 0px;    
@@ -49,73 +50,53 @@ body {
   padding: 0 calc(var(--size-bezel) * 3);
 }
 
-b{
+b.result{
   font-weight: 900;
   color: beige;
   text-decoration: underline;
 }
 
+b.bold {
+  text-decoration: underline;
+  font-weight: 900;
+  color: #e0f6aa;
+}
+
+b.param{
+  font-weight: 90;
+  color: #e0f6aa;
+}
 
 .grid-container {
   display: grid;
   grid-template-areas: 
-    'header header header header header header' 
-    'left left left right right right' 
-    'left left left right right right'
-    'footer footer footer center center center';
+    'result result'
+    'stat dataStat'
+    'modelStat modelStat';
 } 
 
-.header, .left, .right, .footer{
+.stat, .modelStat, .dataStat, .result{
   padding: 10px;
 }
 
-.footer{
-grid-area: footer;
+.result{
+grid-area: result;
 }
 
-
-.left {
-  grid-area: left;
+.modelStat {
+  grid-area: modelStat;
 }
 
-.right {
-  grid-area: right;
+.dataStat {
+  grid-area: dataStat;
 }
 
-.header {
-  grid-area: header;
-  overflow: hidden;
-  text-align: center;
+.stat {
+  grid-area: stat;
 }
   
-.header a {
-  float: left;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
-}
-  
-.header a:hover {
-  background-color: #ddd;
-  color: #570A57;
-}
-
-.header h1 {
-  font-weight: 900;
-  color: #2E0249;
-  font-size: 35px;
-}
-
-
 .input {
   position: relative;
-}
-
-.headerLeft, .headerRight {
-  font-weight: bolder;
-  font-size:25px;
 }
               
 li {
@@ -124,5 +105,23 @@ li {
 }
 
 li::marker{
-  color: darkorchid;
+  color: #fff;
+}
+
+/* FORMAT FOR STATS CONTAINER */
+#resultHead, 
+#dataStatHead,
+#modelStatHead, 
+#statHead {
+  text-align: center;
+}
+
+#sum, #clicks, #postbacks,
+#mean, #std, #median,
+#accurancy, #length, 
+#modelName, #bid, 
+#approve, #cr, #ctr, 
+#epc, #ecpm, #cvScore, #param,
+#paramContainer{
+  text-align: center;
 }

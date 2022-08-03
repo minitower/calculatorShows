@@ -13,71 +13,75 @@
             <a href="{{ url_for('info') }}">Information</a>
         </div>
         <div class="main">
-            <div class="header">
-                <h1 id="headerFullCalc">
-                    Full calculator
-                </h1>
-                <p id="introFullCalc">
-                    In this page you can fill table with necessary value
-                    and get predict of EPC for your campaign. For claculating
-                    you can set up your own parameters (for <b>bid</b>, <b>approve</b>, 
-                    <b>CR</b> and <b>CTR</b>) OR <b>just fill campaign id.</b>
-                </p>
-            </div>
-            <div class="campaignFullCalc">
-                <form action="" method="post">
-                    <input name="custom" value="False" id="invisable2" disabled><br></br>
-                    <label for="campaignId" class="campaignIdLabel" required>
-                        Enter a campaign id/name:
-                    </label>
-                    <input name="campaignId" type="text" class="campaignIdInput">
-                    <label for="cpa" class="campaignIdLabel">
-                        Enter CPA (Cost Per Action):
-                    </label>
-                    <input name="cpa" type="text" class="campaignIdInput">
-                    <div class="modelInfo">
-                        <label for="pred_n" class="predLabel">Choise predict length:</label>
-                        <div class="pLenSel">
-                            <select name="pred_n" class="predDropDown">
-                                <option value="24">1 day</option>
-                                <option value="48">2 day</option>
-                                <option value="72" selected>3 day</option>
-                                <option value="96">4 day</option>
-                                <option value="120">5 day</option>
-                                <option value="144">6 day</option>
-                                <option value="168">7 day</option>
-                                <option value="192">8 day</option>
-                                <option value="216">9 day</option>
-                                <option value="240">10 day</option>
-                            </select><br>    
+            <div class="grid-container">
+                <div class="header">
+                    <h1 id="headerFullCalc">
+                        Full calculator
+                    </h1>
+                    <p id="introFullCalc">
+                        In this page you can fill table with necessary value
+                        and get predict of EPC for your campaign. For claculating
+                        you can set up your own parameters (for <b>bid</b>, <b>approve</b>, 
+                        <b>CR</b> and <b>CTR</b>) OR <b>just fill campaign id.</b>
+                    </p>
+                </div>
+                <div class="campaignFullCalc">
+                    <form action="" method="post">
+                        <input name="custom" value="False" id="invisable2" disabled><br></br>
+    
+                        <div class="camName">
+                            <label for="campaignId" class="campaignIdLabel" required>
+                                Enter a campaign id/name:
+                            </label>
+                            <input name="campaignId" type="text" class="campaignIdInput">
                         </div>
-                        <label for="accurancy" class="accurancyLabel">Choise minimal 
-                                            accurancy level for this model: </label>
-                        <div class='accurancySel'>
+                        
+                        <div class="camCPA">
+                            <label for="cpa" class="campaignIdLabel">
+                                Enter CPA (Cost Per Action):
+                            </label>
+                            <input name="cpa" type="text" class="campaignIdInput">
+                        </div>
+    
+                        <div class="length">
+                            <label for="pred_n" class="predLabel">
+                                Choise predict length:
+                            </label>
+                            <div class="pLenSel">
+                                <select name="pred_n" class="predDropDown">
+                                    <option value="24">1 day</option>
+                                    <option value="48">2 day</option>
+                                    <option value="72" selected>3 day</option>
+                                    <option value="96">4 day</option>
+                                    <option value="120">5 day</option>
+                                    <option value="144">6 day</option>
+                                    <option value="168">7 day</option>
+                                    <option value="192">8 day</option>
+                                    <option value="216">9 day</option>
+                                    <option value="240">10 day</option>
+                                </select><br>    
+                            </div>
+                        </div>
+    
+                        <div class="accurancy">
+                            <label for="accurancy" class="accurancyLabel">
+                                Choise minimal accurancylevel for this model:  
+                            </label> <br>
                             <select name="accurancy" class="accurancyDropDown">
                                 <option value="0.85">85%</option>
                                 <option value="0.90">90%</option>
                                 <option value="0.95" selected>95%</option>
                                 <option value="0.99">99%</option>
                                 <option value="0.9999">99.99%</option>
-                            </select><br>
+                            </select>
                         </div>
-                    </div>
-                    <input type="submit" class="fullCalcSubmit">
-                </form>
-            </div>
-        </div>
-            
-            <div class="lastFullPredict">
-                <p id="lastFullPredict">Previous results of forecasting</p>
-                <div class="idList">
-                    {% if length != 0: %}
-                        {% for keys, vals in links.items(): %}
-                            <a href="{{ vals }}">Back to {{ keys }} result</a><br>
-                        {% endfor %}
-                    {% endif %}
+    
+                        <div class="sub">
+                            <input type="submit" class="fullCalcSubmit">
+                        </div>
+                    </form>
                 </div>
-            </div>
+            </div> 
         </div>
     </body>
 </html>

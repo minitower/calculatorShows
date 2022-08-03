@@ -15,42 +15,44 @@
     </div>
     <div class="main">
         <div class="grid-container">
-            <div class="left">
-                <h2 class="headerLeft">Output data</h2>
+            <div class="stat">
+                <h2 id="statHead">Output data</h2>
                 <div id="inputData">
-                    <p id="bid">Bid: {{ bid }}</p>
-                    <p id="approve">Approve: {{ approve }}</p>
-                    <p id="cr">CR: {{ cr }}</p>
-                    <p id="ctr">CTR: {{ ctr }}</p>
-                    <p id="epc">EPC: {{ epc }}</p>
-                    <p id="ecpm">eCPM: {{ ecpm }}</p>
+                    <p id="bid"><b class="bold">Bid:</b> {{ bid }}</p>
+                    <p id="approve"><b class="bold">Approve:</b> {{ approve }}</p>
+                    <p id="cr"><b class="bold">CR:</b> {{ cr }}</p>
+                    <p id="ctr"><b class="bold">CTR:</b> {{ ctr }}</p>
+                    <p id="epc"><b class="bold">EPC:</b> {{ epc }}</p>
+                    <p id="ecpm"><b class="bold">eCPM:</b> {{ ecpm }}</p>
                 </div>
             </div>
-            <div class="center">
-                <h2 class="headerCenter">Models result</h2>
-                <p class="accurancy">Accurancy: {{ accurancy }}</p>
-                <p class="length">Predict length: {{ predictLength }} days</p>
-                <p class="modelName">Model name: Holt-Winters model</p>
-                <p>Parameters:</p>
-                <li>alpha: {{alpha}}</li>
-                <li>beta: {{beta}}</li>
-                <li>gamma: {{gamma}}</li>
-                <p>Parameters accurancy function: CV score</p>
+            <div class="modelStat">
+                <h2 id="modelStatHead">Models result</h2>
+                <p id="accurancy"><b class="bold">Accurancy:</b> {{ accurancy }}</p>
+                <p id="length"><b class="bold">Predict length:</b> {{ predictLength }} days</p>
+                <p id="modelName"><b class="bold">Model name:</b> Holt-Winters model</p>
+                <div id="paramContainer">
+                    <p id="param"><b class="bold">Parameters:</b></p>
+                    <li><b class="param">alpha:</b> {{alpha}}</li>
+                    <li><b class="param">beta:</b> {{beta}}</li>
+                    <li><b class="param">gamma:</b> {{gamma}}</li>
+                </div>
+                <p id="cvScore"><b class="bold">Parameters accurancy function:</b> CV score</p>
             </div>
-            <div class="right">
-                <h2 class="headerRight">Data statistic</h2>
-                <p class="mean">Mean shows (for 1 day): {{ mean }}</p>
-                <p class="std">Standart deviation (for 1 day): {{ std }}</p>
-                <p class="median">Median shows (for 1 day): {{ median }}</p><br>
+            <div class="dataStat">
+                <h2 id="dataStatHead">Data statistic</h2>
+                <p id="mean"><b class="bold">Mean shows (for 1 day):</b> {{ mean }}</p>
+                <p id="std"><b class="bold">Standart deviation (for 1 day):</b> {{ std }}</p>
+                <p id="median"><b class="bold">Median shows (for 1 day):</b> {{ median }}</p><br>
             </div>
-            <div class="footer">
-                <h2 class="footerHeader">Results</h2>
-                <p class="sum">For {{ predictLength }} days predict sum of shows is <b>{{ sumShows }} shows</b></p>
-                <p class="clicks">With this information sum of clicks by interval of 
-                                    {{ predictLength }} day if <b>{{ sumClicks }} clicks</b></p>
-                <p class="postbacks">
-                    So, with CR and approve we have <b>{{ sumPostbacksUnconf }} unconfirmed postbacks</b> unconfirmed leads and 
-                    <b>{{sumPostbacksConf}} confirmed postbacks</b>
+            <div class="result">
+                <h2 id="resultHead">Results</h2>
+                <p id="sum">For {{ predictLength }} days predict sum of shows is <b class="result">{{ sumShows }} shows</b></p>
+                <p id="clicks">With this information sum of clicks by interval of 
+                                    {{ predictLength }} day if <b class="result">{{ sumClicks }} clicks</b></p>
+                <p id="postbacks">
+                    So, with CR and approve we have <b class="result">{{ sumPostbacksUnconf }} unconfirmed postbacks</b> unconfirmed leads and 
+                    <b class="result">{{sumPostbacksConf}} confirmed postbacks</b>
                 </p>
             </div>
         </div>

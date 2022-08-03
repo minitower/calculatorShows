@@ -18,7 +18,7 @@
                 <div class="idList">
                     {% if length != 0: %}
                         {% for keys, vals in links.items(): %}
-                            <a href="{{ vals }}">Back to {{ keys }} result</a><br>
+                            <a class="linkToResult" href="{{ vals }}">Back to {{ keys }} result</a><br>
                         {% endfor %}
                     {% endif %}
                 </div>
