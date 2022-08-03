@@ -1,9 +1,9 @@
 .env
-__pycache__/
+__pycache__/*
 ./test/
 winFlask/*
-templates/fullPlot*
-templates/fullTable*
+templates/tables/*
+templates/plots/*
 resultsBin/full*
 *.csv
 shell*
