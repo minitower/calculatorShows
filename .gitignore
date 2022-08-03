@@ -5,5 +5,5 @@ winFlask/*
 templates/fullPlot*
 templates/fullTable*
 resultsBin/full*
-test/*
+*.csv
 shell*
