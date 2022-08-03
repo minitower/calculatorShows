@@ -3,8 +3,6 @@ import pickle
 import os
 from pathlib import Path
 
-from pystache import render
-
 from main import *
 from fullCalc import *
 from checker import *
