@@ -108,6 +108,27 @@ li::marker{
   color: #fff;
 }
 
+#dataTable {
+  text-align: center;
+  border-collapse: collapse;
+  width: 100%
+}
+
+.headerTable {
+  font-weight: 900;
+  color: beige;
+  border: 2px solid #dddddd;
+}
+
+.paramName {
+  font-weight: 900;
+  color: beige;
+}
+
+td {
+  border: 1px solid #dddddd;
+}
+
 /* FORMAT FOR STATS CONTAINER */
 #resultHead, 
 #dataStatHead,
