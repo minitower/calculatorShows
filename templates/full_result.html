@@ -45,25 +45,63 @@
                     <th class="headerTable">Parameter name</th>
                     <th class="headerTable">Mean</th>
                     <th class="headerTable">Standart deviation</th>
-                    <th class="headerTable">Median</th>
+                    <th class="headerTable">Current</th>
+                    <th class="headerTable">Foreast</th>
+                    <th class="headerTable">Difference</th>
                     <tr class="rowTable">
                         <td class="paramName">Shows</td>
                         <td class="valueTable">{{ mean }}</td>
                         <td class="valueTable">{{ std }}</td>
                         <td class="valueTable">{{ median }}</td>
+                        <td class="valueTable">{{ dailySumShows }}</td>
+                        <td style="background-color: {{ diffShowsCell }}" 
+                                class="valueTable">
+                            <div class="diffValue">                      
+                                <img class="arrow" src="{{ arrPathShows }}">{{ diffShowsForecast }}
+                            </div> 
+                        </td>
                     </tr>
                     <tr class="rowTable">
                         <td class="paramName">Clicks</td>
                         <td class="valueTable">{{ meanClicks }}</td>
                         <td class="valueTable">{{ stdClicks }}</td>
                         <td class="valueTable">{{ medianClicks }}</td>
+                        <td class="valueTable">{{ dailySumClicks }}</td>
+                        <td style="background-color: {{ diffClicksCell }}" 
+                                class="valueTable">
+                            <div class="diffValue">
+                                <img src="{{ arrPathClicks }}"class="arrow"> {{ diffClicksForecast }}
+                            </div>
+                        </td>
                     </tr>
                     <tr class="rowTable">
-                        <td class="paramName">Postbacks</td>
+                        <td class="paramName">Postbacks (total)</td>
                         <td class="valueTable">{{ meanPost }}</td>
                         <td class="valueTable">{{ stdPost }}</td>
                         <td class="valueTable">{{ medianPost }}</td>
+                        <td class="valueTable">{{ dailySumPost }}</td>
+                        <td style="background-color: {{ diffPostCell }}" 
+                                class="valueTable">
+                            <div class="diffValue">
+                                <img src="{{ arrPathPost }}" class="arrow"> {{ diffPostForecast }}
+                            </div>
+                        </td>
                     </tr>
+                    <tr class="rowTable">
+                        <td class="paramName">Postbacks (confirmed)</td>
+                        <td class="valueTable">{{ meanConfirmPostbacks }}</td>
+                        <td class="valueTable">{{ stdConfirmPostbacks }}</td>
+                        <td class="valueTable">{{ medianConfirmPostbacks}}</td>
+                        <td class="valueTable">{{ dailySumConfPost }}</td>
+                        <td style="background-color: {{ diffConfPostCell }}" 
+                                class="valueTable">
+                            <div class="diffValue">
+                                <img src="{{ arrPathConfPost }}" class="arrow"> {{ diffConfPostForecast }}
+                                </span>
+                            </div>    
+                        </td>
+                    </tr>
+
                 </table>
             </div>
             <div class="result">
@@ -72,7 +110,7 @@
                 <p id="clicks">With this information sum of clicks by interval of 
                                     {{ predictLength }} day if <b class="result">{{ sumClicks }} clicks</b></p>
                 <p id="postbacks">
-                    So, with CR and approve we have <b class="result">{{ sumPostbacksUnconf }} unconfirmed postbacks</b> unconfirmed leads and 
+                    So, with CR and approve we have <b class="result">{{ sumPostbacksUnconf }} unconfirmed postbacks</b>  and 
                     <b class="result">{{sumPostbacksConf}} confirmed postbacks</b>
                 </p>
             </div>

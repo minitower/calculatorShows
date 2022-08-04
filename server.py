@@ -1,3 +1,4 @@
+from fileinput import filename
 from flask import *
 import pickle
 import os
@@ -143,25 +144,72 @@ def fullCalculator():
             ecpm=epc*ctr*1000
         pred_n = int(request.form.get('pred_n'))
         minAccurancy = float(request.form.get('accurancy'))
-        resultDict, meanClicks, stdClicks, \
-            medianClicks, meanPostbacks, \
-                stdPostbacks, medianPostbacks = fullCalc(bid=bid, approve=approve, cr=cr, 
-                                ctr=ctr, epc=epc, ecpm=ecpm, pred_n=pred_n,
-                                minAccurancy=minAccurancy,
-                                campaignId=campaignId,
-                                campaignName=campaignName)
-        print(resultDict)
+        resultDict = fullCalc(bid=bid, approve=approve, cr=cr, 
+                        ctr=ctr, epc=epc, ecpm=ecpm, pred_n=pred_n,
+                        minAccurancy=minAccurancy,
+                        campaignId=campaignId,
+                        campaignName=campaignName)
+
         try:
             if resultDict['err'] == "No shows":
                 return make_response(redirect('/not_found'))
         except KeyError:
             pass
+        meanClicks=resultDict['meanClicks'] 
+        stdClicks=resultDict['stdClicks'] 
+        medianClicks=resultDict['medianClicks']
+        meanPostbacks=resultDict['meanPostbacks']
+        stdPostbacks=resultDict['stdPostbacks']
+        medianPostbacks=resultDict['medianPostbacks']
+        meanConfirmPostbacks = resultDict['meanConfirmPostbacks']
+        stdConfirmPostbacks=resultDict['stdConfirmPostbacks']
+        medianConfirmPostbacks = resultDict['medianConfirmPostbacks']
+
         campaign=resultDict['campaign']
         campaign=campaign.replace(' | ', '_')
         if len(resultDict.values()) == 1:
             res = make_response(redirect('/not_found'))
             res.set_cookie('campaign', campaign)
         else:
+            diffShowsForecastUnform = int(resultDict['median']) -  int(int(resultDict['sumShows'])/
+                                                                int(resultDict['pred_n']/24))
+            if  diffShowsForecastUnform>=0:
+                diffShowsCell = 'darkgreen'
+                arrPathShows = url_for('static', filename='img/arrowUp.svg')
+            else:
+                diffShowsCell = 'darkred'
+                arrPathShows = url_for('static', filename='img/arrowDown.svg')
+
+            diffClicksForecastUnform = int(resultDict['medianClicks']) - \
+                                                                int(int(resultDict['sumClicks'])/
+                                                                int(resultDict['pred_n']/24))
+            if  diffClicksForecastUnform>=0:
+                diffClicksCell = 'darkgreen'
+                arrPathClicks = url_for('static', filename='img/arrowUp.svg')
+            else:
+                diffClicksCell = 'darkred'
+                arrPathClicks = url_for('static', filename='img/arrowDown.svg')
+
+            diffPostForecastUnform = int(resultDict['medianPostbacks']) - \
+                                                                int(int(resultDict['sumPostbacksUnconf'])/
+                                                                int(resultDict['pred_n']/24))
+            if  diffPostForecastUnform>=0:
+                diffPostCell = 'darkgreen'
+                arrPathPost = url_for('static', filename='img/arrowUp.svg')
+            else:
+                diffPostCell = 'darkred'
+                arrPathPost = url_for('static', filename='img/arrowDown.svg')
+
+            diffConfPostForecastUnform = int(resultDict['medianConfirmPostbacks']) - \
+                                                                int(int(resultDict['sumPostbacksConf'])/
+                                                                int(resultDict['pred_n']/24))
+            if  diffConfPostForecastUnform>=0:
+                diffConfPostCell = 'darkgreen'
+                arrPathConfPost = url_for('static', filename='img/arrowUp.svg')
+            else:
+                diffConfPostCell = 'darkred'
+                arrPathConfPost = url_for('static', filename='img/arrowDown.svg')
+
             res = make_response(render_template('full_result.html', 
                             bid='{:,}'.format(round(resultDict['bid'], 3)).replace(',', ' '),
                             approve='{:,}'.format(round(resultDict['approve'], 3)).replace(',', ' '),
@@ -178,7 +226,10 @@ def fullCalculator():
                             medianClicks='{:,}'.format(int(medianClicks)).replace(',', ' '), 
                             meanPost='{:,}'.format(int(meanPostbacks)).replace(',', ' '), 
                             stdPost='{:,}'.format(int(stdPostbacks)).replace(',', ' '),
-                            medianPost='{:,}'.format(int(medianPostbacks)).replace(',', ' '), 
+                            medianPost='{:,}'.format(int(medianPostbacks)).replace(',', ' '),
+                            meanConfirmPostbacks='{:,}'.format(int(meanConfirmPostbacks)).replace(',', ' '),
+                            stdConfirmPostbacks='{:,}'.format(int(stdConfirmPostbacks)).replace(',', ' '),
+                            medianConfirmPostbacks='{:,}'.format(int(medianConfirmPostbacks)).replace(',', ' '),
                             predictLength=int(resultDict['pred_n']/24),
                             alpha=round(resultDict['alpha'], 3), 
                             beta=round(resultDict['beta'],3),
@@ -192,7 +243,21 @@ def fullCalculator():
                             sumShows='{:,}'.format(int(resultDict['sumShows'])).replace(',', ' '),
                             sumClicks='{:,}'.format(int(resultDict['sumClicks'])).replace(',', ' '),
                             sumPostbacksUnconf='{:,}'.format(int(resultDict['sumPostbacksUnconf'])).replace(',', ' '),
-                            sumPostbacksConf='{:,}'.format(int(resultDict['sumPostbacksConf'])).replace(',', ' '),))
+                            sumPostbacksConf='{:,}'.format(int(resultDict['sumPostbacksConf'])).replace(',', ' '), 
+                            dailySumShows='{:,}'.format(int(int(resultDict['sumShows'])/int(resultDict['pred_n']/24))).replace(',', ' '),
+                            dailySumClicks='{:,}'.format(int(int(resultDict['sumClicks'])/int(resultDict['pred_n']/24))).replace(',', ' '),
+                            dailySumPost='{:,}'.format(int(int(resultDict['sumPostbacksUnconf'])/int(resultDict['pred_n']/24))).replace(',', ' '),
+                            dailySumConfPost='{:,}'.format(int(int(resultDict['sumPostbacksConf'])/int(resultDict['pred_n']/24))).replace(',', ' '),
+                            diffShowsCell=diffShowsCell,
+                            diffShowsForecast='{:,}'.format(diffShowsForecastUnform).replace(',', ' '),
+                            diffClicksCell=diffClicksCell,
+                            diffClicksForecast='{:,}'.format(diffClicksForecastUnform).replace(',', ' '),
+                            diffPostCell=diffPostCell,
+                            diffPostForecast='{:,}'.format(diffPostForecastUnform).replace(',', ' '),
+                            diffConfPostCell=diffConfPostCell,
+                            diffConfPostForecast='{:,}'.format(diffConfPostForecastUnform).replace(',', ' '),
+                            arrPathShows=arrPathShows, arrPathClicks=arrPathClicks,
+                            arrPathPost=arrPathPost, arrPathConfPost=arrPathConfPost))
             with open(f'./resultsBin/full_{campaign}.pickle', 'wb') as f:
                     pickle.dump(resultDict, f, protocol=pickle.HIGHEST_PROTOCOL)
             res.set_cookie('plotName', url_for('plot', campaign=campaign))
@@ -274,7 +339,11 @@ def fullLastResult(campaigns):
                             sumShows='{:,}'.format(int(dictArgs['sumShows'])).replace(',', ' '),
                             sumClicks='{:,}'.format(int(dictArgs['sumClicks'])).replace(',', ' '),
                             sumPostbacksUnconf='{:,}'.format(int(dictArgs['sumPostbacksUnconf'])).replace(',', ' '),
-                            sumPostbacksConf='{:,}'.format(int(dictArgs['sumPostbacksConf'])).replace(',', ' '),))
+                            sumPostbacksConf='{:,}'.format(int(dictArgs['sumPostbacksConf'])).replace(',', ' '),
+                            dailySumShows='{:,}'.format(int(int(dictArgs['sumShows'])/int(dictArgs['pred_n']/24))).replace(',', ' '),
+                            dailySumClicks='{:,}'.format(int(int(dictArgs['sumClicks'])/int(dictArgs['pred_n']/24))).replace(',', ' '),
+                            dailySumPost='{:,}'.format(int(int(dictArgs['sumShows'])/int(dictArgs['pred_n']/24))).replace(',', ' '),
+                            dailySumConfPost='{:,}'.format(int(int(dictArgs['sumShows'])/int(dictArgs['pred_n']/24))).replace(',', ' ')))
         return res
     except EOFError:
         res = make_response(render_template('fake_result.html', 
