@@ -98,6 +98,15 @@ grid-area: result;
 .input {
   position: relative;
 }
+
+.diffValue{
+  text-align: center;
+  font-size: 20px;
+}
+
+.arrow {
+  width: 20px;
+}
               
 li {
   list-style-type: lower-greek;

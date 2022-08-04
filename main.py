@@ -13,7 +13,8 @@ from cross_val import CVScore
 def loadData(host, user, password, campaign_name, mode):
     modeDict = {'shows': 'ad_shows',
                 'clicks': 'clicks', 
-                'postbacks': 'postbacks_total_count'}
+                'postbacks': 'postbacks_total_count',
+                'confirm_postbacks': 'postbacks_confirmed_count'}
     with open('./queries/q.sql', 'r') as f:
         q = f.read()
     q=q.replace('${NAME}', campaign_name)
@@ -29,7 +30,7 @@ def loadData(host, user, password, campaign_name, mode):
     df = df.sort_values('datetime')
     df = df.drop(df.loc[df[mode] == 0].index)\
             .reset_index().drop('index', axis=1)
-    print(df)
+    df = df[:-29]
     return df
 
 def loadDataLocal(path, campaign_name):
@@ -111,7 +112,7 @@ def plotBuilder(df, campaign, check, mode, full=False):
 
 def main(campaign, pred_n, minAccurancy, full=False, mode='shows'):
     """
-        mode: one of ['clicks', 'shows', 'postbacks']
+        mode: one of ['clicks', 'shows', 'postbacks', 'confirm_postbacks']
     """
     #WARN: for this script is nercessury: 
     #1. Data length must be more then 24 dots (1 dot==1 hour)
@@ -138,6 +139,9 @@ def main(campaign, pred_n, minAccurancy, full=False, mode='shows'):
     df_daily = df.copy()
     df_daily['datetime'] = pd.to_datetime(df_daily['datetime']).dt.date
     df_daily = df_daily.groupby('datetime').sum()
+    df_daily = df_daily.loc[df_daily.index + pd.Timedelta(days=1)
+                             <= pd.Timestamp.today()]
+
     mean=df_daily[mode].mean()
     std=df_daily[mode].std()
     median=df_daily[mode].median()
@@ -173,8 +177,11 @@ def main(campaign, pred_n, minAccurancy, full=False, mode='shows'):
 
     #Build plot with HW result
     plotBuilder(df_save, campaignSave, accurancy, mode, full)
-    return [accurancy, mean, std, median,
-        pred_n, alpha, beta, gamma, sumShows, df_save]
+    return [accurancy, mean, std, median, 
+            pred_n, alpha, 
+            beta, gamma, sumShows, df_save]
+
+
 
 def mainAll(campaign, pred_n, minAccurancy, full=False):
     d = main(campaign, pred_n, minAccurancy, full, mode='shows')
@@ -199,14 +206,27 @@ def mainAll(campaign, pred_n, minAccurancy, full=False):
     df_save = df_save.join(tmp_df[['postbacks', 'postbacks_forecast', 
                                     'datetime']].set_index('datetime'), 
                                     on='datetime')
+    tmp = main(campaign, pred_n, minAccurancy, full, mode='confirm_postbacks')
+    tmp_df = tmp.pop(-1)
+    meanConfirmPostbacks=tmp[1]
+    stdConfirmPostbacks=tmp[2]
+    medianConfirmPostbacks=tmp[3]
+    tmp_df['confirm_postbacks_forecast'] = tmp_df['forecast'].astype(int).copy()
+    df_save = df_save.join(tmp_df[['confirm_postbacks', 'confirm_postbacks_forecast', 
+                                    'datetime']].set_index('datetime'),
+                                    on='datetime')
     campaignSave=campaign.replace(' | ', '_')
     df_save['shows_err'] = abs(df_save['shows'] - df_save['shows_forecast']).fillna(0).astype(int)
     df_save['clicks_err'] = abs(df_save['clicks'] - df_save['clicks_forecast']).fillna(0).astype(int)
     df_save['postbacks_err'] = abs(df_save['postbacks'] - df_save['postbacks_forecast']).fillna(0).astype(int)
+    df_save['confirm_postbacks_err'] = abs(df_save['confirm_postbacks'] - 
+                                                df_save['confirm_postbacks_forecast']).fillna(0).astype(int)
     if full:
         with open(f'./templates/tables/fullTable_{campaignSave}.html', 'w+') as f:
             f.write(df_save.to_html())
     else:
         with open(f'./templates/tables/table_{campaignSave}.html', 'w+') as f:
             f.write(df_save.to_html())
-    return [d, meanClicks, stdClicks, medianClicks, meanPostbacks, stdPostbacks, medianPostbacks]
+    return [d, meanClicks, stdClicks, medianClicks,
+            meanPostbacks, stdPostbacks, medianPostbacks,
+            meanConfirmPostbacks, stdConfirmPostbacks, medianConfirmPostbacks]

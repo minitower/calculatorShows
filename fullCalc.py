@@ -128,9 +128,10 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
         except ValueError:
             return {'err': "No shows"}
             
-        paramDict, meanClicks, stdClicks, \
-            medianClicks, meanPostbacks, \
-                stdPostbacks, medianPostbacks = mainAll(campaign=campaign,
+        paramDict, meanClicks, stdClicks, medianClicks, \
+            meanPostbacks, stdPostbacks, medianPostbacks,\
+            meanConfirmPostbacks, stdConfirmPostbacks, \
+            medianConfirmPostbacks = mainAll(campaign=campaign,
                          pred_n=pred_n,
                          minAccurancy=minAccurancy,
                          full=True)
@@ -142,9 +143,13 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
             paramDict = resultParser(result=paramDict)
             paramDict.update(dict(bid=bid, approve=approve*100, ctr=ctr*100, 
                                 cr=cr*100, epc=epc, ecpm=ecpm, campaign=campaign,
+                                meanClicks=meanClicks, stdClicks=stdClicks, 
+                                medianClicks=medianClicks, meanPostbacks=meanPostbacks, 
+                                stdPostbacks=stdPostbacks, medianPostbacks=medianPostbacks,
+                                meanConfirmPostbacks=meanConfirmPostbacks, 
+                                stdConfirmPostbacks=stdConfirmPostbacks,
+                                medianConfirmPostbacks=medianConfirmPostbacks, 
                                 sumClicks=paramDict['sumShows']*ctr,
                                 sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
                                 sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
-    return [paramDict, meanClicks, stdClicks, 
-            medianClicks, meanPostbacks, 
-                stdPostbacks, medianPostbacks]
+    return paramDict
