@@ -16,4 +16,4 @@ class MinimizeStopper(object):
             warnings.warn("Terminating optimization: time limit reached",
                           TookTooLong)
         else:
-            print("Elapsed: %.3f sec" % elapsed)
+            pass

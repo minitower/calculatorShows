@@ -3,6 +3,8 @@ from flask import *
 import pickle
 import os
 from pathlib import Path
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 from main import *
 from fullCalc import *
@@ -149,21 +151,21 @@ def fullCalculator():
                         minAccurancy=minAccurancy,
                         campaignId=campaignId,
                         campaignName=campaignName)
-
         try:
             if resultDict['err'] == "No shows":
                 return make_response(redirect('/not_found'))
         except KeyError:
             pass
+        
         meanClicks=resultDict['meanClicks'] 
         stdClicks=resultDict['stdClicks'] 
         medianClicks=resultDict['medianClicks']
         meanPostbacks=resultDict['meanPostbacks']
         stdPostbacks=resultDict['stdPostbacks']
         medianPostbacks=resultDict['medianPostbacks']
-        meanConfirmPostbacks = resultDict['meanConfirmPostbacks']
+        meanConfirmPostbacks=resultDict['meanConfirmPostbacks']
         stdConfirmPostbacks=resultDict['stdConfirmPostbacks']
-        medianConfirmPostbacks = resultDict['medianConfirmPostbacks']
+        medianConfirmPostbacks=resultDict['medianConfirmPostbacks']
 
         campaign=resultDict['campaign']
         campaign=campaign.replace(' | ', '_')

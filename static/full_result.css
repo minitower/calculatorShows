@@ -129,6 +129,10 @@ li::marker{
   border: 2px solid #dddddd;
 }
 
+h2 {
+  line-height: 5px;
+}
+
 .paramName {
   font-weight: 900;
   color: beige;
@@ -151,7 +155,11 @@ td {
 #accurancy, #length, 
 #modelName, #bid, 
 #approve, #cr, #ctr, 
-#epc, #ecpm, #cvScore, #param,
+#epc, #ecpm, #cvScore{
+  text-align: center;
+  line-height: 2px;
+}
+#param,
 #paramContainer{
   text-align: center;
 }

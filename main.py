@@ -10,7 +10,7 @@ from minmizeStopper import *
 from cross_val import CVScore
 
 
-def loadData(host, user, password, campaign_name, mode):
+def loadData(host, user, password, campaign_name, mode, userCPAShows=None):
     modeDict = {'shows': 'ad_shows',
                 'clicks': 'clicks', 
                 'postbacks': 'postbacks_total_count',
@@ -30,7 +30,11 @@ def loadData(host, user, password, campaign_name, mode):
     df = df.sort_values('datetime')
     df = df.drop(df.loc[df[mode] == 0].index)\
             .reset_index().drop('index', axis=1)
-    df = df[:-29]
+    df = df[:-20]
+    
+    if mode == 'shows':
+        diff = abs(df['shows'].mean()-userCPAShows)/len(df)
+        df['shows'] = df['shows']+diff
     return df
 
 def loadDataLocal(path, campaign_name):
@@ -110,7 +114,7 @@ def plotBuilder(df, campaign, check, mode, full=False):
         print(f'Plot saved on templates/plot_{mode}_{campaign}.html')
     
 
-def main(campaign, pred_n, minAccurancy, full=False, mode='shows'):
+def main(campaign, pred_n, minAccurancy, userCPAShows, full=False, mode='shows'):
     """
         mode: one of ['clicks', 'shows', 'postbacks', 'confirm_postbacks']
     """
@@ -125,7 +129,8 @@ def main(campaign, pred_n, minAccurancy, full=False, mode='shows'):
     # Load data from database
     #df = loadDataLocal('./test.csv', campaign)
     df = loadData(host=host, user=user, password=password,
-                    campaign_name=campaign, mode=mode)
+                    campaign_name=campaign, userCPAShows=userCPAShows, 
+                    mode=mode)
     if len(df) <= 200:
         df2 = pd.DataFrame(pd.to_datetime(pd.date_range(start=df['datetime'].values[0], 
                                                         end=df['datetime'].values[-1], 
@@ -181,46 +186,57 @@ def main(campaign, pred_n, minAccurancy, full=False, mode='shows'):
             pred_n, alpha, 
             beta, gamma, sumShows, df_save]
 
+def loadStat(campaign, mode):
+    load_dotenv()
+    # Load program constant
+    host=os.environ.get("HOST")
+    user=os.environ.get("CLICKHOUSE_USERNAME")
+    password=os.environ.get("PASSWORD")
+    
+    df = loadData(host=host, user=user, password=password,
+                    campaign_name=campaign, mode=mode)
+    if len(df) <= 200:
+        df2 = pd.DataFrame(pd.to_datetime(pd.date_range(start=df['datetime'].values[0], 
+                                                        end=df['datetime'].values[-1], 
+                                                        freq='1H')))
+        df2 = df2.join(df.set_index('datetime'), on=0)
+        df = df2.copy()
+        df.columns = ['datetime', mode]
+        df[mode] = df[mode].interpolate(method='nearest').astype(int)
+    if df.empty:
+        return ['error']
+    df_daily = df.copy()
+    df_daily['datetime'] = pd.to_datetime(df_daily['datetime']).dt.date
+    df_daily = df_daily.groupby('datetime').sum()
+    df_daily = df_daily.loc[df_daily.index + pd.Timedelta(days=1)
+                             <= pd.Timestamp.today()]
+    return [df_daily[mode].mean(), df_daily[mode].std(), df_daily[mode].median()]
 
-
-def mainAll(campaign, pred_n, minAccurancy, full=False):
-    d = main(campaign, pred_n, minAccurancy, full, mode='shows')
+def mainAll(campaign, pred_n, minAccurancy, ctr, cr, approve, userCPAShows, full=False):
+    d = main(campaign, pred_n, minAccurancy, full, userCPAShows, mode='shows')
     df_save = d.pop(-1)
     df_save['shows_forecast'] = df_save['forecast'].astype(int).copy()
     df_save = df_save.drop('forecast', axis=1)
-    tmp = main(campaign, pred_n, minAccurancy, full, mode='clicks')
-    tmp_df = tmp.pop(-1)
-    meanClicks=tmp[1]
-    stdClicks=tmp[2]
-    medianClicks=tmp[3]
-    tmp_df['clicks_forecast'] = tmp_df['forecast'].astype(int).copy()
-    df_save = df_save.join(tmp_df[['clicks', 'datetime', 
-                                    'clicks_forecast']].set_index('datetime'), 
-                                    on='datetime')
-    tmp = main(campaign, pred_n, minAccurancy, full, mode='postbacks')
-    tmp_df = tmp.pop(-1)
-    meanPostbacks=tmp[1]
-    stdPostbacks=tmp[2]
-    medianPostbacks=tmp[3]
-    tmp_df['postbacks_forecast'] = tmp_df['forecast'].astype(int).copy()
-    df_save = df_save.join(tmp_df[['postbacks', 'postbacks_forecast', 
-                                    'datetime']].set_index('datetime'), 
-                                    on='datetime')
-    tmp = main(campaign, pred_n, minAccurancy, full, mode='confirm_postbacks')
-    tmp_df = tmp.pop(-1)
-    meanConfirmPostbacks=tmp[1]
-    stdConfirmPostbacks=tmp[2]
-    medianConfirmPostbacks=tmp[3]
-    tmp_df['confirm_postbacks_forecast'] = tmp_df['forecast'].astype(int).copy()
-    df_save = df_save.join(tmp_df[['confirm_postbacks', 'confirm_postbacks_forecast', 
-                                    'datetime']].set_index('datetime'),
-                                    on='datetime')
+    
+    tmp = loadStat(campaign, mode='clicks')
+    meanClicks=tmp[0]
+    stdClicks=tmp[1]
+    medianClicks=tmp[2]
+    df_save['clicks_forecast'] = (df_save['shows_forecast']*ctr).astype(int).copy()
+
+    tmp = loadStat(campaign, mode='postbacks')
+    meanPostbacks=tmp[0]
+    stdPostbacks=tmp[1]
+    medianPostbacks=tmp[2]
+    df_save['postbacks_forecast'] = (df_save['clicks_forecast']*cr).astype(int).copy()
+
+    tmp = loadStat(campaign, mode='confirm_postbacks')
+    meanConfirmPostbacks=tmp[0]
+    stdConfirmPostbacks=tmp[1]
+    medianConfirmPostbacks=tmp[2]
+    df_save['confirm_postbacks_forecast'] = (df_save['clicks_forecast']*approve).astype(int).copy()
+    
     campaignSave=campaign.replace(' | ', '_')
-    df_save['shows_err'] = abs(df_save['shows'] - df_save['shows_forecast']).fillna(0).astype(int)
-    df_save['clicks_err'] = abs(df_save['clicks'] - df_save['clicks_forecast']).fillna(0).astype(int)
-    df_save['postbacks_err'] = abs(df_save['postbacks'] - df_save['postbacks_forecast']).fillna(0).astype(int)
-    df_save['confirm_postbacks_err'] = abs(df_save['confirm_postbacks'] - 
-                                                df_save['confirm_postbacks_forecast']).fillna(0).astype(int)
     if full:
         with open(f'./templates/tables/fullTable_{campaignSave}.html', 'w+') as f:
             f.write(df_save.to_html())
