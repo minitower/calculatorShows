@@ -7,6 +7,7 @@ import os
 # Project script
 from main import *
 from cpaEncounter import cpaEnc
+from approveEncounter import appEnc
 
 
 def loadCheckData(host, user, password,
@@ -123,6 +124,11 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
 
         userCPAShows = cpaEnc(campaign=campaign,
                                     user_bid=bid)
+        
+        userApproveShows = appEnc(campaign=campaign,
+                                  user_approve=approve)
+        meanDistance=(userCPAShows+userApproveShows)/2
+        
         try:
             bid, approve, ctr, cr, epc, ecpm = getCampaignStatByName(host=host,
                                                     user=user,
@@ -137,7 +143,7 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
             medianConfirmPostbacks = mainAll(campaign=campaign,
                          pred_n=pred_n,
                          minAccurancy=minAccurancy,
-                         userCPAShows=userCPAShows,
+                         userCPAShows=meanDistance,
                          ctr=ctr, cr=cr, approve=approve,
                          full=True)
 

@@ -1,4 +1,5 @@
-SELECT * FROM (SELECT campaign_name, 
+SELECT campaign_name, 
+campaignShows FROM (SELECT campaign_name, 
 		AVG(bid) as current_bid, 
 		AVG(shows) as campaignShows
 FROM (SELECT AVG(IF(cpa_money=0,NULL,cpa_money)) as bid, 

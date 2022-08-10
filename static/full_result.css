@@ -50,6 +50,8 @@ body {
   padding: 0 calc(var(--size-bezel) * 3);
 }
 
+/* STYLING OF BOLD PLAIN TEXT*/
+
 b.result{
   font-weight: 900;
   color: beige;
@@ -67,6 +69,8 @@ b.param{
   color: #e0f6aa;
 }
 
+/* GRID CONTAINER BUILDER*/
+
 .grid-container {
   display: grid;
   grid-template-areas: 
@@ -83,21 +87,19 @@ b.param{
 grid-area: result;
 }
 
-.modelStat {
-  grid-area: modelStat;
+.stat {
+  grid-area: stat;
 }
 
 .dataStat {
   grid-area: dataStat;
 }
 
-.stat {
-  grid-area: stat;
+.modelStat {
+  grid-area: modelStat;
 }
-  
-.input {
-  position: relative;
-}
+
+/* STYLING DELTA VALUE */
 
 .diffValue{
   text-align: center;

@@ -12,6 +12,7 @@
             <a href="{{ url_for('fullCalculator') }}">Full calculator</a>
             <a href="{{ url_for('info') }}">Information</a>
         </div>
+        <div id="sub" onclick="off()"></div>
         <div class="main">
             <div class="grid-container">
                 <div class="header">
@@ -22,7 +23,9 @@
                         In this page you can fill table with necessary value
                         and get predict of EPC for your campaign. For claculating
                         you can set up your own parameters (for <b>bid</b>, <b>approve</b>, 
-                        <b>CR</b> and <b>CTR</b>) OR <b>just fill campaign id.</b>
+                        <b>CR</b> and <b>CTR</b>) OR <b>just fill campaign id.</b><br> 
+                        Required variables have label with <span id="req">this color</span>,
+                        not required variables - <span id="notReq">this color</span>
                     </p>
                 </div>
                 <div class="campaignFullCalc">
@@ -31,48 +34,61 @@
     
                         <div class="camName">
                             <label for="campaignId" class="campaignIdLabel" required>
-                                Enter a campaign id/name:
+                                    Campaign id/name:
                             </label>
-                            <input name="campaignId" type="text" class="campaignIdInput" required>
+                            <div class="inputIcon camIcon">
+                                <input name="campaignId" type="text" class="campaignIdInput" required>
+                            </div>
                         </div>
                         
                         <div class="camCPA">
-                            <label for="cpa" class="campaignIdLabel">
+                            <label for="cpa" class="cpaLabel">
                                 Enter CPA (Cost Per Action):
                             </label>
-                            <input name="cpa" type="text" class="campaignIdInput" required>
+                            <div class="inputIcon cpaIcon">
+                                <input name="cpa" type="text" class="cpaInput">
+                            </div>
                         </div>
-    
+                        
+                        <div class="camApprove">
+                            <label for="approve" class="approveLabel">
+                                Enter approve level:
+                            </label>
+                            <div class="inputIcon approveIcon">
+                                <input name="approve" type="text" class="approveInput">
+                            </div>
+                        </div>
+
                         <div class="length">
                             <label for="pred_n" class="predLabel">
                                 Choise predict length:
                             </label>
                             <div class="pLenSel">
                                 <select name="pred_n" class="predDropDown">
-                                    <option value="24">1 day</option>
-                                    <option value="48">2 day</option>
-                                    <option value="72" selected>3 day</option>
-                                    <option value="96">4 day</option>
-                                    <option value="120">5 day</option>
-                                    <option value="144">6 day</option>
-                                    <option value="168">7 day</option>
-                                    <option value="192">8 day</option>
-                                    <option value="216">9 day</option>
-                                    <option value="240">10 day</option>
+                                    <option value="24" class="optionVal">1 day</option>
+                                    <option value="48" class="optionVal">2 day</option>
+                                    <option value="72" class="optionVal" selected>3 day</option>
+                                    <option value="96" class="optionVal">4 day</option>
+                                    <option value="120" class="optionVal">5 day</option>
+                                    <option value="144" class="optionVal">6 day</option>
+                                    <option value="168" class="optionVal">7 day</option>
+                                    <option value="192" class="optionVal">8 day</option>
+                                    <option value="216" class="optionVal">9 day</option>
+                                    <option value="240" class="optionVal">10 day</option>
                                 </select><br>    
                             </div>
                         </div>
     
                         <div class="accurancy">
                             <label for="accurancy" class="accurancyLabel">
-                                Choise minimal accurancylevel for this model:  
+                                Choise minimal accurancy<br> level for this model:  
                             </label> <br>
                             <select name="accurancy" class="accurancyDropDown">
-                                <option value="0.85">85%</option>
-                                <option value="0.90">90%</option>
-                                <option value="0.95" selected>95%</option>
-                                <option value="0.99">99%</option>
-                                <option value="0.9999">99.99%</option>
+                                <option value="0.85" class="optionVal">85%</option>
+                                <option value="0.90" class="optionVal">90%</option>
+                                <option value="0.95" class="optionVal" selected>95%</option>
+                                <option value="0.99" class="optionVal">99%</option>
+                                <option value="0.9999" class="optionVal">99.99%</option>
                             </select>
                         </div>
     

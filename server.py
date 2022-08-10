@@ -110,40 +110,19 @@ def fullCalculator():
                 campaignName=request.form.get('campaignId')
                 campaignId=None
             cpa=request.form.get('cpa')
-            bid=cpa
+            customApprove=request.form.get('approve')
+            if cpa!='':
+                bid=cpa
+            else:
+                bid=0
             cr=0
             ctr=0
-            approve=0
+            if customApprove!='':
+                approve=customApprove
+            else:
+                approve=0
             epc=0
             ecpm=0
-        else:    
-            try:
-                bid = float(request.form.get('bid'))
-            except ValueError:
-                return redirect(url_for('valNotFound', value='bid'))
-            try:
-                approve = float(request.form.get('approve'))
-            except ValueError:
-                return redirect(url_for('valNotFound', value='approve'))
-            approveDim = request.form.get('approveDim')
-            try:
-                cr = float(request.form.get('cr'))
-            except ValueError:
-                return redirect(url_for('valNotFound', value='cr'))
-            crDim = request.form.get('crDim')
-            try: 
-                ctr = float(request.form.get('ctr'))
-            except ValueError:
-                return redirect(url_for('valNotFound', value='ctr'))
-            ctrDim = request.form.get('ctrDim')
-            if approveDim == '%':
-                approve = approve/100
-            if crDim == '%':
-                cr = cr/100
-            if ctrDim == '%':
-                ctr = ctr/100
-            epc=bid*cr*approve
-            ecpm=epc*ctr*1000
         pred_n = int(request.form.get('pred_n'))
         minAccurancy = float(request.form.get('accurancy'))
         resultDict = fullCalc(bid=bid, approve=approve, cr=cr, 
@@ -173,7 +152,7 @@ def fullCalculator():
             res = make_response(redirect('/not_found'))
             res.set_cookie('campaign', campaign)
         else:
-            diffShowsForecastUnform = int(resultDict['median']) -  int(int(resultDict['sumShows'])/
+            diffShowsForecastUnform = -int(resultDict['median']) + int(int(resultDict['sumShows'])/
                                                                 int(resultDict['pred_n']/24))
             if  diffShowsForecastUnform>=0:
                 diffShowsCell = 'darkgreen'
@@ -182,7 +161,7 @@ def fullCalculator():
                 diffShowsCell = 'darkred'
                 arrPathShows = url_for('static', filename='img/arrowDown.svg')
 
-            diffClicksForecastUnform = int(resultDict['medianClicks']) - \
+            diffClicksForecastUnform = -int(resultDict['medianClicks']) + \
                                                                 int(int(resultDict['sumClicks'])/
                                                                 int(resultDict['pred_n']/24))
             if  diffClicksForecastUnform>=0:
@@ -192,7 +171,7 @@ def fullCalculator():
                 diffClicksCell = 'darkred'
                 arrPathClicks = url_for('static', filename='img/arrowDown.svg')
 
-            diffPostForecastUnform = int(resultDict['medianPostbacks']) - \
+            diffPostForecastUnform = -int(resultDict['medianPostbacks']) + \
                                                                 int(int(resultDict['sumPostbacksUnconf'])/
                                                                 int(resultDict['pred_n']/24))
             if  diffPostForecastUnform>=0:
@@ -202,7 +181,7 @@ def fullCalculator():
                 diffPostCell = 'darkred'
                 arrPathPost = url_for('static', filename='img/arrowDown.svg')
 
-            diffConfPostForecastUnform = int(resultDict['medianConfirmPostbacks']) - \
+            diffConfPostForecastUnform = -int(resultDict['medianConfirmPostbacks']) + \
                                                                 int(int(resultDict['sumPostbacksConf'])/
                                                                 int(resultDict['pred_n']/24))
             if  diffConfPostForecastUnform>=0:
