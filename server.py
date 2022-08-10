@@ -9,95 +9,26 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 from main import *
 from fullCalc import *
 from checker import *
+from cleaner import envCleaner
 
 app = Flask(__name__)
 load_dotenv()
 
-if bool(os.environ.get('SERVER_INFO_CLEANER')) == True:
-    dirTmpFiles = Path('./resultsBin')
-    tmpFilesList = [i for i in os.walk('./resultsBin')][-1][-1]
-    for i in tmpFilesList:
-        os.remove(dirTmpFiles / Path(i))
+if bool(os.environ.get('SERVER_INFO_CLEAN')) == True:
+    print('clean')
+    envCleaner('bin')
+
+if bool(os.environ.get('SERVER_PLOT_CLEAN')) == True:
+    envCleaner('plot')
+    
+if bool(os.environ.get('SERVER_TABLE_CLEAN')) == True:
+    envCleaner('table')
 
 host=os.environ.get("HOST")
 user=os.environ.get("CLICKHOUSE_USERNAME")
 password=os.environ.get("PASSWORD")
 
-@app.route("/", methods=['GET', 'POST'])
-def forecastServer():
-    if request.method == 'POST':
-        campaign=request.form.get('campaign')
-        campaignId = request.form.get('campaignId')
-        check = Checker(campaign)
-        if check.campaignId is not None:
-            if not check.checkId() and check.campaignName is None:
-                return make_response(redirect(url_for('notFound', 
-                                                      campaign=campaign)))
-        if check.campaignName is not None:
-            if not check.checkName() and check.campaignId is None:
-                return make_response(redirect(url_for('notFound',
-                                                      campaign=campaign)))
-        if campaign is None and campaignId!='':
-            campaign=getCampaignById(host=host, 
-                                        user=user, 
-                                        password=password, 
-                                        campaignId=campaignId)
-            print('CAMPAIGN: ' + campaignId)
-        pred_n=int(request.form.get('pred_n'))
-        minAccurancy=float(request.form.get('accurancy'))
-        result = main(campaign, 
-                        pred_n=pred_n, 
-                        minAccurancy=minAccurancy)
-        campaign=campaign.replace(' | ', '_')
-        if len(result) == 1:
-            res = make_response(redirect('/not_found'))
-            res.set_cookie('campaign', campaign)
-        else:
-            res = make_response(render_template('result.html', 
-                            accurancy=round(result[0],3),
-                            mean=round(result[1], 3), 
-                            std=round(result[2], 3),
-                            median=round(result[3], 3), 
-                            predictLength=str(int(pred_n/24)) + 'days',
-                            alpha=round(result[5], 3), 
-                            beta=round(result[6],3),
-                            gamma=round(result[7],3), 
-                            tableName=url_for('table', campaign=campaign),
-                            backlink=url_for('forecastServer'),
-                            plotName=url_for('plot', campaign=campaign),
-                            campaign=campaign,
-                            sumShows='{:,}'.format(round(result[8],3)).replace(',', ' ')))
-            with open(f'./resultsBin/{campaign}.pickle', 'wb') as f:
-                pickle.dump(result, f, protocol=pickle.HIGHEST_PROTOCOL)
-            res.set_cookie('plotName', url_for('plot', campaign=campaign))
-            res.set_cookie('tableName', url_for('table', campaign=campaign))
-            res.set_cookie('campaign', campaign)
-            if os.path.exists('./resultsBin/campaignList.pickle'):
-                with open('./resultsBin/campaignList.pickle', 'rb') as f:
-                    campaignDict = pickle.load(f)
-                campaignDict.update({campaign: url_for('lastResult', campaign=campaign)})
-                with open('./resultsBin/campaignList.pickle', 'wb') as f:
-                    pickle.dump(campaignDict, f, protocol=pickle.HIGHEST_PROTOCOL)
-            else:
-                campaignDict = {campaign: url_for('lastResult', campaign=campaign)}
-                with open('./resultsBin/campaignList.pickle', 'wb') as f:
-                    pickle.dump(campaignDict, f, protocol=pickle.HIGHEST_PROTOCOL)
-        return res
-    elif request.method == 'GET':
-        if os.path.exists('./resultsBin/campaignList.pickle'):
-            with open('./resultsBin/campaignList.pickle', 'rb') as f:
-                campaignDict = pickle.load(f)
-        else:
-            campaignDict = {}
-        if bool(os.environ.get('FULL_CALC_FIRST')):
-            return make_response(redirect(url_for('fullCalculator')))
-        else:
-            return render_template('index.html', length=len(campaignDict), 
-                                    links=campaignDict, valsFoot=url_for('fullCalculator'))
-
-
-
-@app.route('/full_calculator', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def fullCalculator():
     if request.method == 'POST':
         custom=request.form.get('custom')
@@ -114,13 +45,15 @@ def fullCalculator():
             if cpa!='':
                 bid=cpa
             else:
-                bid=0
+                bid=1500
+                cpa='none'
             cr=0
             ctr=0
             if customApprove!='':
                 approve=customApprove
             else:
-                approve=0
+                approve=25
+                customApprove='none'
             epc=0
             ecpm=0
         pred_n = int(request.form.get('pred_n'))
@@ -193,7 +126,9 @@ def fullCalculator():
 
             res = make_response(render_template('full_result.html', 
                             bid='{:,}'.format(round(resultDict['bid'], 3)).replace(',', ' '),
+                            userBid=cpa,
                             approve='{:,}'.format(round(resultDict['approve'], 3)).replace(',', ' '),
+                            userApprove=customApprove,
                             cr='{:,}'.format(round(resultDict['cr'],3)).replace(',', ' '),
                             ctr=round(resultDict['ctr'], 3),
                             epc=round(resultDict['epc'], 3),
@@ -216,7 +151,7 @@ def fullCalculator():
                             beta=round(resultDict['beta'],3),
                             gamma=round(resultDict['gamma'],3), 
                             tableName=url_for('fullTable', campaign=campaign),
-                            backlink=url_for('forecastServer'),
+                            backlink=url_for('fullCalculator'),
                             plotNameShows=url_for('fullPlotShows', campaign=campaign),
                             plotNameClicks=url_for('fullPlotClicks', campaign=campaign),
                             plotNamePostbacks=url_for('fullPlotPostbacks', campaign=campaign),
@@ -266,30 +201,6 @@ def fullCalculator():
                                     length=len(fullCalcDict), 
                                     links=fullCalcDict)
 
-@app.route('/results/<campaign>', methods=['GET'])
-def lastResult(campaign):
-    try:
-        with open(f'./resultsBin/{campaign}.pickle', 'rb') as f:
-            listArgs = pickle.load(f)
-        res = make_response(render_template('result.html', 
-                            accurancy=listArgs[0],
-                            mean=listArgs[1], std=listArgs[2],
-                            median=listArgs[3], 
-                            predictLength=listArgs[4],
-                            alpha=listArgs[5], 
-                            beta=listArgs[6],
-                            gamma=listArgs[7], 
-                            tableName=url_for('table', campaign=campaign),
-                            backlink=url_for('forecastServer'),
-                            plotName=url_for('plot', campaign=campaign),
-                            campaign=campaign,
-                            sumShows=listArgs[8]))
-        return res
-    except EOFError:
-        res = make_response(render_template('fake_result.html', 
-                        campaign=campaign,
-                        backlink=url_for('forecastServer')))
-        return res
 
 @app.route('/full_results/<campaigns>', methods=['GET'])
 def fullLastResult(campaigns):
@@ -312,7 +223,7 @@ def fullLastResult(campaigns):
                             beta=round(dictArgs['beta'],3),
                             gamma=round(dictArgs['gamma'],3), 
                             tableName=url_for('fullTable', campaign=campaigns),
-                            backlink=url_for('forecastServer'),
+                            backlink=url_for('fullCalculator'),
                             plotNameShows=url_for('fullPlotShows', campaign=campaigns),
                             plotNameClicks=url_for('fullPlotClicks', campaign=campaigns),
                             plotNamePostbacks=url_for('fullPlotPostbacks', campaign=campaigns),
@@ -329,7 +240,7 @@ def fullLastResult(campaigns):
     except EOFError:
         res = make_response(render_template('fake_result.html', 
                         campaign=campaigns,
-                        backlink=url_for('forecastServer')))
+                        backlink=url_for('fullCalculator')))
         return res
         
 @app.route('/not_found/<campaign>', methods=['GET'])
@@ -387,5 +298,4 @@ def fullTable(campaign):
 def valNotFound(value):
     return render_template('value_not_found.html', 
                             value=value, 
-                            backlink1=url_for('forecastServer'),
-                            backlink2=url_for('fullCalculator'))
+                            backlink=url_for('fullCalculator'))

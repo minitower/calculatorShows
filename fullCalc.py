@@ -114,6 +114,7 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
                                     sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
                                     sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
     else:
+        print(bid, approve)
         if campaignId is not None:
             campaign = getCampaignById(host=host,
                                      user=user,

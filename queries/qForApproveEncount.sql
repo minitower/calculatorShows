@@ -16,5 +16,5 @@ FROM (
 			FROM ads.ads) c ON c.ad_id == asu2.ad_id
 		GROUP BY campaign_name) 
 
-WHERE current_bid>${APPROVE}-${INTERVAL} and
-			current_bid<${APPROVE}+${INTERVAL};
+WHERE current_approve>${APPROVE}-${INTERVAL} and
+			current_approve<${APPROVE}+${INTERVAL};

@@ -17,6 +17,7 @@ def loadData(host, user, password, user_bid, interval=100):
                  interval=interval+100)
     else:
         df.columns = ['campaign_name', 'shows']
+        print(df)
         return df
     
 def findRelevantCam(df, campaign):

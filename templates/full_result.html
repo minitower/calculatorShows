@@ -18,8 +18,30 @@
             <div class="stat">
                 <h2 id="statHead">Output data</h2>
                 <div id="inputData">
-                    <p id="bid"><b class="bold">Bid:</b> {{ bid }}</p> <span class="addictionInfo">(user bid: {{ userBid }})</span>
-                    <p id="approve"><b class="bold">Approve:</b> {{ approve }}</p> <span class="addictionInfo">(user approve: {{ userApprove }})</span>
+
+                    <p id="bid">
+                        <b class="bold">
+                            Bid:
+                        </b> {{ bid }}
+                        <div class="addictionInfo">
+                            <b class="bold">
+                                user bid:
+                            </b> 
+                            {{ userBid }}
+                        </div>
+                    </p>
+
+                    <p id="approve">
+                        <b class="bold">
+                            Approve:
+                        </b> {{ approve }} 
+                        <div class="addictionInfo">
+                        <b class="bold">
+                            user approve:
+                        </b>
+                        {{ userApprove }}
+                        </div>
+                    </p>
                     <p id="cr"><b class="bold">CR:</b> {{ cr }}</p>
                     <p id="ctr"><b class="bold">CTR:</b> {{ ctr }}</p>
                     <p id="epc"><b class="bold">EPC:</b> {{ epc }}</p>

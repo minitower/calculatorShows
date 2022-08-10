@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Cannot found campaign</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='value_not_found.css') }}">
+        <meta charset="UTF-8">
+    </head>        
+    <body>
+        <div class="sidenav">
+            <a href="{{ url_for('fullCalculator') }}">Backlink</a>
+        </div>
+        <div class="main">
+            <div class="grid-container">
+                <div id="errName">
+                    <div id="errCode">
+                        404
+                    </div>
+                    <div id="errTitle">
+                        Value {{ value }} not found in user variables
+                    </div>
+                </div>
+                <div id="description">
+                    For specific calculation calculator must need a one/both parameters 
+                    from <a href="{{ url_for('fullCalculator') }}">calculator fields</a><br>
+                    If you see this screen, try to add parameters in 
+                    <a href="{{ url_for('fullCalculator') }}">calculator screen</a><br>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+

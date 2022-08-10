@@ -1,0 +1,91 @@
+/* NEW MENU */
+
+.sidenav {
+    height: 100%;
+    width: 160px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #a393eb;
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+  
+#sub {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2;
+    cursor: pointer;
+}
+  
+.sidenav a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #27296d;
+    display: block;
+}
+  
+.sidenav a:hover {
+    color: #f1f1f1;
+    background-color: darkmagenta;
+}
+  
+.main {
+    margin-left: 160px; /* Same as the width of the sidenav */
+    font-size: 28px; /* Increased text to enable scrolling */
+    padding: 0px 10px;
+}
+  
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}
+  
+/* END NEW MENU */
+  
+body {
+    background: #e271c9ff;
+    background-image: url("data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e %3csvg width='210mm' height='297mm' version='1.1' viewBox='0 0 210 297' id='svg1497' sodipodi:docname='stop.svg' inkscape:version='1.2.1 (9c6d41e410%2c 2022-07-14)' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3e%3csodipodi:namedview id='namedview1499' pagecolor='white' bordercolor='%23111111' borderopacity='1' inkscape:showpageshadow='0' inkscape:pageopacity='0' inkscape:pagecheckerboard='1' inkscape:deskcolor='%23d1d1d1' inkscape:document-units='mm' showgrid='false' inkscape:zoom='8.4359982' inkscape:cx='43.50404' inkscape:cy='31.412999' inkscape:window-width='1920' inkscape:window-height='1017' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' inkscape:current-layer='svg1497'/%3e%3cdefs id='defs1489'%3e%3cradialGradient id='radialGradient1725' cx='10.036' cy='9.5659' r='7.1997' gradientTransform='matrix(1 0 0 .99564 0 .041671)' gradientUnits='userSpaceOnUse' spreadMethod='reflect'%3e%3cstop stop-color='%23ff0015' offset='.5' id='stop1484'/%3e%3cstop stop-color='%23f86d78' offset='1' id='stop1486'/%3e%3c/radialGradient%3e%3c/defs%3e%3cg transform='rotate(45.252 11.468 4.9519)' fill='url(%23radialGradient1725)' stroke='black' stroke-width='.223' id='g1495' style='stroke:%23e271c9%3bstroke-opacity:1'%3e%3cellipse cx='10.036' cy='9.5659' rx='7.0882' ry='7.0568' id='ellipse1491' style='stroke:%23e271c9%3bstroke-opacity:1'/%3e%3crect x='9.869' y='2.5948' width='.13306' height='13.994' ry='.0043442' id='rect1493' style='stroke:%23e271c9%3bstroke-opacity:1'/%3e%3c/g%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: 100% 100%;
+    background-position-x: 160px;
+    background-position-y: 160px;
+  }
+
+.grid-container {
+    display: grid;
+    grid-template-areas: 
+      "header"
+      "footer";
+}
+  
+#errName{
+    grid-area: header;
+    display: block;
+    text-align: center;
+    font-weight: 900;
+    border: 2px solid #034f84;
+
+}
+  
+#errTitle{
+
+}
+
+#errCode{
+    text-decoration: underline;
+}
+
+#description{
+    grid-area: footer;
+}
