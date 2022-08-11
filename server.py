@@ -43,14 +43,26 @@ def fullCalculator():
             cpa=request.form.get('cpa')
             customApprove=request.form.get('approve')
             if cpa!='':
-                bid=cpa
+                try:
+                    int(cpa)
+                    bid=cpa
+                except ValueError:
+                    return make_response(
+                                    redirect(url_for("valNotFound", 
+                                                          value="CPA")))
             else:
                 bid=1500
                 cpa='none'
             cr=0
             ctr=0
             if customApprove!='':
-                approve=customApprove
+                try:
+                    int(customApprove)
+                    approve=customApprove
+                except ValueError:
+                    return make_response(
+                                    redirect(url_for("valNotFound", 
+                                                        value="approve")))
             else:
                 approve=25
                 customApprove='none'
@@ -65,7 +77,9 @@ def fullCalculator():
                         campaignName=campaignName)
         try:
             if resultDict['err'] == "No shows":
-                return make_response(redirect('/not_found'))
+                return make_response(
+                            redirect(url_for("valNotFound", 
+                                            value="campaign name/id")))
         except KeyError:
             pass
         
