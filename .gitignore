@@ -8,3 +8,6 @@ resultsBin/full*
 *.csv
 shell*
 .vscode/
+shell.ipynb
+.vs
+env
