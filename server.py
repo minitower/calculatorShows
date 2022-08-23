@@ -1,4 +1,5 @@
 import imp
+from lib2to3.pgen2.token import OP
 from flask import *
 import pickle
 import os
@@ -11,6 +12,7 @@ from main import *
 from fullCalc import *
 from checker import *
 from cleaner import envCleaner
+from OpenVPNHandler import OpenVPN
 
 app = Flask(__name__)
 load_dotenv()
@@ -56,6 +58,7 @@ def fullCalculator():
                 cpa='none'
             cr=0
             ctr=0
+
             if customApprove!='':
                 try:
                     int(customApprove)
@@ -69,6 +72,7 @@ def fullCalculator():
                 customApprove='none'
             epc=0
             ecpm=0
+
         pred_n = int(request.form.get('pred_n'))
         minAccurancy = float(request.form.get('accurancy'))
         try:
@@ -80,7 +84,8 @@ def fullCalculator():
                         custom_approve=customApprove,
                         custom_bid=cpa)
         except ch.errors.SocketTimeoutError:
-            
+            vpn = OpenVPN()
+            vpn.connect()
             
         try:
             if resultDict['err'] == "No shows":
@@ -173,9 +178,8 @@ def fullCalculator():
                             gamma=round(resultDict['gamma'],3), 
                             tableName=url_for('fullTable', campaign=campaign),
                             backlink=url_for('fullCalculator'),
-                            plotNameShows=url_for('fullPlotShows', campaign=campaign),
-                            plotNameClicks=url_for('fullPlotClicks', campaign=campaign),
-                            plotNamePostbacks=url_for('fullPlotPostbacks', campaign=campaign),
+                            plotNameShows=url_for('fullPlot', campaign=campaign),
+                            factorAnalysis=url_for('factorAnalysis', campaign=campaign),
                             campaign=campaign,
                             sumShows='{:,}'.format(int(resultDict['sumShows'])).replace(',', ' '),
                             sumClicks='{:,}'.format(int(resultDict['sumClicks'])).replace(',', ' '),
@@ -246,9 +250,8 @@ def fullLastResult(campaigns):
                             gamma=round(dictArgs['gamma'],3), 
                             tableName=url_for('fullTable', campaign=campaigns),
                             backlink=url_for('fullCalculator'),
-                            plotNameShows=url_for('fullPlotShows', campaign=campaigns),
-                            plotNameClicks=url_for('fullPlotClicks', campaign=campaigns),
-                            plotNamePostbacks=url_for('fullPlotPostbacks', campaign=campaigns),
+                            plotNameShows=url_for('fullPlot', campaign=campaigns),
+                            factorAnalysis=url_for('factorAnalysis', campaign=campaign),
                             campaign=campaigns,
                             sumShows='{:,}'.format(int(dictArgs['sumShows'])).replace(',', ' '),
                             sumClicks='{:,}'.format(int(dictArgs['sumClicks'])).replace(',', ' '),
@@ -297,19 +300,13 @@ def table(campaign):
     return render_template(f'tables/table_{tableName}')
 
 @app.route("/full_plot_shows/<campaign>", methods=['GET'])
-def fullPlotShows(campaign):
+def fullPlot(campaign):
     plotName = f'{campaign}.html'
     return render_template(f'plots/fullPlot_shows_{plotName}')
 
-@app.route("/full_plot_clicks/<campaign>", methods=['GET'])
-def fullPlotClicks(campaign):
-    plotName = f'{campaign}.html'
-    return render_template(f'plots/fullPlot_clicks_{plotName}')
+@app.route("/factor_analysis/<campaign>", methods=['GET'])
+def factorAnalysis(campaign):
 
-@app.route("/full_plot_postbacks/<campaign>", methods=['GET'])
-def fullPlotPostbacks(campaign):
-    plotName = f'{campaign}.html'
-    return render_template(f'plots/fullPlot_postbacks_{plotName}')
 
 @app.route("/full_table/<campaign>", methods=['GET'])
 def fullTable(campaign):

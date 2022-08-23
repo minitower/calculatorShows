@@ -6,3 +6,4 @@ python-dotenv>=0.20.0
 numpy>=1.23.1
 plotly>=5.9.0
 flask>=1.0.2
+openvpn-api>=0.3.0

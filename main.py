@@ -208,7 +208,8 @@ def loadStat(campaign, mode):
                              <= pd.Timestamp.today()]
     return [df_daily[mode].mean(), df_daily[mode].std(), df_daily[mode].median()]
 
-def mainAll(campaign, pred_n, minAccurancy, ctr, cr, approve, custom_approve, custom_bid, full=False):
+def mainAll(campaign, pred_n, minAccurancy, ctr, cr, approve, 
+                    custom_approve, custom_bid, full=False):
     d = main(campaign, pred_n, minAccurancy, full, mode='shows')
     df_save = d.pop(-1)
     df_save['shows_forecast'] = df_save['forecast'].astype(int).copy()
@@ -230,7 +231,7 @@ def mainAll(campaign, pred_n, minAccurancy, ctr, cr, approve, custom_approve, cu
     meanConfirmPostbacks=tmp[0]
     stdConfirmPostbacks=tmp[1]
     medianConfirmPostbacks=tmp[2]
-    df_save['confirm_postbacks_forecast'] = (df_save['clicks_forecast']*approve).astype(int).copy()
+    df_save['confirm_postbacks_forecast'] = (df_save['clicks_forecast']*custom_approve).astype(int).copy()
     
     campaignSave=campaign.replace(' | ', '_')
     if full:

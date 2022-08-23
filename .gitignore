@@ -10,4 +10,5 @@ shell*
 .vscode/
 shell.ipynb
 .vs
-env
+env/*
+envForIPython/*
