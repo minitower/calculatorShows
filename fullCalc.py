@@ -82,86 +82,54 @@ def getCampaignStatByName(host, user, password, campaign):
 
 def fullCalc(bid, approve, cr, ctr, epc, ecpm,
              pred_n, minAccurancy, campaignId, 
-             campaignName, step=0):
+             campaignName, custom_approve, custom_bid,
+             step=0):
     load_dotenv()
     host = os.environ.get("HOST")
     user = os.environ.get("CLICKHOUSE_USERNAME")
     password = os.environ.get("PASSWORD")
-    if campaignId is None and campaignName is None:
-        campaign = loadCheckData(host=host,
+
+    if campaignId is not None:
+        campaign = getCampaignById(host=host,
                                  user=user,
                                  password=password,
-                                 bid=bid,
-                                 ecpm=ecpm,
-                                 step=step)
-        paramDict = main(campaign=campaign,
-                         pred_n=pred_n,
-                         minAccurancy=minAccurancy,
-                         full=True)
-
-        if paramDict[0] == 'error 2' and step <= 3:
-            paramDict = fullCalc(bid=bid, approve=approve, ctr=ctr,
-                                    cr=cr, epc=epc, ecpm=ecpm, pred_n=pred_n, 
-                                    minAccurancy=minAccurancy, step=step+1)
-
-        elif paramDict[0] == 'error 2':
-            paramDict = {'err': "Predict can't be calculated"}
-        elif paramDict[0] != 'error 2':
-            paramDict = resultParser(result=paramDict)
-            paramDict.update(dict(bid=bid, approve=ctr, ctr=ctr, 
-                                    cr=cr, epc=epc, ecpm=ecpm,
-                                    campaign=campaign, sumClicks=paramDict['sumShows']*ctr,
-                                    sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
-                                    sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
-    else:
-        print(bid, approve)
-        if campaignId is not None:
-            campaign = getCampaignById(host=host,
-                                     user=user,
-                                     password=password,
-                                     campaignId=campaignId)
-        elif campaignName is not None:
-            campaign=campaignName
-
-        userCPAShows = cpaEnc(campaign=campaign,
-                                    user_bid=bid)
+                                 campaignId=campaignId)
+    elif campaignName is not None:
+        campaign=campaignName
         
-        userApproveShows = appEnc(campaign=campaign,
-                                  user_approve=approve)
-        meanDistance=(userCPAShows+userApproveShows)/2
-        
-        try:
-            bid, approve, ctr, cr, epc, ecpm = getCampaignStatByName(host=host,
-                                                    user=user,
-                                                    password=password,
-                                                    campaign=campaign)
-        except ValueError:
-            return {'err': "No shows"}
+    try:
+        bid, approve, ctr, cr, epc, ecpm = getCampaignStatByName(host=host,
+                                                user=user,
+                                                password=password,
+                                                campaign=campaign)
+    except ValueError:
+        return {'err': "No shows"}
             
-        paramDict, meanClicks, stdClicks, medianClicks, \
-            meanPostbacks, stdPostbacks, medianPostbacks,\
-            meanConfirmPostbacks, stdConfirmPostbacks, \
-            medianConfirmPostbacks = mainAll(campaign=campaign,
-                         pred_n=pred_n,
-                         minAccurancy=minAccurancy,
-                         userCPAShows=meanDistance,
-                         ctr=ctr, cr=cr, approve=approve,
-                         full=True)
+    paramDict, meanClicks, stdClicks, medianClicks, \
+        meanPostbacks, stdPostbacks, medianPostbacks,\
+        meanConfirmPostbacks, stdConfirmPostbacks, \
+        medianConfirmPostbacks = mainAll(campaign=campaign,
+                    pred_n=pred_n,
+                    minAccurancy=minAccurancy,
+                    ctr=ctr, cr=cr, approve=approve,
+                    custom_approve=custom_approve, 
+                    custom_bid=custom_bid,
+                    full=True)
 
-        if paramDict[0] == 'error 2':
-            paramDict = {'err': "Predict can't be calculated"}
+    if paramDict[0] == 'error 2':
+        paramDict = {'err': "Predict can't be calculated"}
 
-        elif paramDict[0] != 'error 2':
-            paramDict = resultParser(result=paramDict)
-            paramDict.update(dict(bid=bid, approve=approve*100, ctr=ctr*100, 
-                                cr=cr*100, epc=epc, ecpm=ecpm, campaign=campaign,
-                                meanClicks=meanClicks, stdClicks=stdClicks, 
-                                medianClicks=medianClicks, meanPostbacks=meanPostbacks, 
-                                stdPostbacks=stdPostbacks, medianPostbacks=medianPostbacks,
-                                meanConfirmPostbacks=meanConfirmPostbacks, 
-                                stdConfirmPostbacks=stdConfirmPostbacks,
-                                medianConfirmPostbacks=medianConfirmPostbacks, 
-                                sumClicks=paramDict['sumShows']*ctr,
-                                sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
-                                sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
+    elif paramDict[0] != 'error 2':
+        paramDict = resultParser(result=paramDict)
+        paramDict.update(dict(bid=bid, approve=approve*100, ctr=ctr*100, 
+                            cr=cr*100, epc=epc, ecpm=ecpm, campaign=campaign,
+                            meanClicks=meanClicks, stdClicks=stdClicks, 
+                            medianClicks=medianClicks, meanPostbacks=meanPostbacks, 
+                            stdPostbacks=stdPostbacks, medianPostbacks=medianPostbacks,
+                            meanConfirmPostbacks=meanConfirmPostbacks, 
+                            stdConfirmPostbacks=stdConfirmPostbacks,
+                            medianConfirmPostbacks=medianConfirmPostbacks, 
+                            sumClicks=paramDict['sumShows']*ctr,
+                            sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
+                            sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
     return paramDict

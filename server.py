@@ -1,9 +1,10 @@
-from fileinput import filename
+import imp
 from flask import *
 import pickle
 import os
 from pathlib import Path
 import warnings
+from clickhouse_driver.errors import SocketTimeoutError
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 from main import *
@@ -70,11 +71,17 @@ def fullCalculator():
             ecpm=0
         pred_n = int(request.form.get('pred_n'))
         minAccurancy = float(request.form.get('accurancy'))
-        resultDict = fullCalc(bid=bid, approve=approve, cr=cr, 
+        try:
+            resultDict = fullCalc(bid=bid, approve=approve, cr=cr, 
                         ctr=ctr, epc=epc, ecpm=ecpm, pred_n=pred_n,
                         minAccurancy=minAccurancy,
                         campaignId=campaignId,
-                        campaignName=campaignName)
+                        campaignName=campaignName, 
+                        custom_approve=customApprove,
+                        custom_bid=cpa)
+        except ch.errors.SocketTimeoutError:
+            
+            
         try:
             if resultDict['err'] == "No shows":
                 return make_response(
@@ -188,6 +195,7 @@ def fullCalculator():
                             diffConfPostForecast='{:,}'.format(diffConfPostForecastUnform).replace(',', ' '),
                             arrPathShows=arrPathShows, arrPathClicks=arrPathClicks,
                             arrPathPost=arrPathPost, arrPathConfPost=arrPathConfPost))
+            
             with open(f'./resultsBin/full_{campaign}.pickle', 'wb') as f:
                     pickle.dump(resultDict, f, protocol=pickle.HIGHEST_PROTOCOL)
             res.set_cookie('plotName', url_for('plot', campaign=campaign))

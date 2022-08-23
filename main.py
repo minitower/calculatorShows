@@ -10,7 +10,7 @@ from minmizeStopper import *
 from cross_val import CVScore
 
 
-def loadData(host, user, password, campaign_name, mode, userCPAShows=None):
+def loadData(host, user, password, campaign_name, mode):
     modeDict = {'shows': 'ad_shows',
                 'clicks': 'clicks', 
                 'postbacks': 'postbacks_total_count',
@@ -31,10 +31,6 @@ def loadData(host, user, password, campaign_name, mode, userCPAShows=None):
     df = df.drop(df.loc[df[mode] == 0].index)\
             .reset_index().drop('index', axis=1)
     df = df[:-20]
-    
-    if mode == 'shows':
-        diff = abs(df['shows'].mean()-userCPAShows)/len(df)
-        df['shows'] = df['shows']+diff
     return df
 
 def loadDataLocal(path, campaign_name):
@@ -114,7 +110,7 @@ def plotBuilder(df, campaign, check, mode, full=False):
         print(f'Plot saved on templates/plot_{mode}_{campaign}.html')
     
 
-def main(campaign, pred_n, minAccurancy, userCPAShows, full=False, mode='shows'):
+def main(campaign, pred_n, minAccurancy, full=False, mode='shows'):
     """
         mode: one of ['clicks', 'shows', 'postbacks', 'confirm_postbacks']
     """
@@ -129,7 +125,7 @@ def main(campaign, pred_n, minAccurancy, userCPAShows, full=False, mode='shows')
     # Load data from database
     #df = loadDataLocal('./test.csv', campaign)
     df = loadData(host=host, user=user, password=password,
-                    campaign_name=campaign, userCPAShows=userCPAShows, 
+                    campaign_name=campaign,
                     mode=mode)
     if len(df) <= 200:
         df2 = pd.DataFrame(pd.to_datetime(pd.date_range(start=df['datetime'].values[0], 
@@ -212,8 +208,8 @@ def loadStat(campaign, mode):
                              <= pd.Timestamp.today()]
     return [df_daily[mode].mean(), df_daily[mode].std(), df_daily[mode].median()]
 
-def mainAll(campaign, pred_n, minAccurancy, ctr, cr, approve, userCPAShows, full=False):
-    d = main(campaign, pred_n, minAccurancy, full, userCPAShows, mode='shows')
+def mainAll(campaign, pred_n, minAccurancy, ctr, cr, approve, custom_approve, custom_bid, full=False):
+    d = main(campaign, pred_n, minAccurancy, full, mode='shows')
     df_save = d.pop(-1)
     df_save['shows_forecast'] = df_save['forecast'].astype(int).copy()
     df_save = df_save.drop('forecast', axis=1)

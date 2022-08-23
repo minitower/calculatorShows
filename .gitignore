@@ -7,3 +7,4 @@ templates/plots/*
 resultsBin/full*
 *.csv
 shell*
+.vscode/
