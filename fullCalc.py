@@ -69,7 +69,6 @@ def getCampaignStatByName(host, user, password, campaign):
                       user=user,
                       password=password)
     df = pd.DataFrame(sqlCH.execute(q))
-    print(df)
     df.columns=['name', 'bid', 'approve', 'ctr', 'cr', 'epc', 'ecpm']
     bid = df['bid'].mean()
     approve = df['approve'].mean()
@@ -80,10 +79,8 @@ def getCampaignStatByName(host, user, password, campaign):
     return [bid, approve, ctr, cr, epc, ecpm]
 
 
-def fullCalc(bid, approve, cr, ctr, epc, ecpm,
-             pred_n, minAccurancy, campaignId, 
-             campaignName, custom_approve, custom_bid,
-             step=0):
+def fullCalc(pred_n, minAccurancy, campaignId, 
+             campaignName, custom_approve, custom_bid):
     load_dotenv()
     host = os.environ.get("HOST")
     user = os.environ.get("CLICKHOUSE_USERNAME")
@@ -104,7 +101,7 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
                                                 campaign=campaign)
     except ValueError:
         return {'err': "No shows"}
-            
+    
     paramDict, meanClicks, stdClicks, medianClicks, \
         meanPostbacks, stdPostbacks, medianPostbacks,\
         meanConfirmPostbacks, stdConfirmPostbacks, \
@@ -131,5 +128,5 @@ def fullCalc(bid, approve, cr, ctr, epc, ecpm,
                             medianConfirmPostbacks=medianConfirmPostbacks, 
                             sumClicks=paramDict['sumShows']*ctr,
                             sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
-                            sumPostbacksConf=paramDict['sumShows']*ctr*cr*approve))
+                            sumPostbacksConf=paramDict['sumShows']*ctr*cr*custom_approve))
     return paramDict

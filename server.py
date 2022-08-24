@@ -1,5 +1,4 @@
-import imp
-from lib2to3.pgen2.token import OP
+#Public libs
 from flask import *
 import pickle
 import os
@@ -8,11 +7,15 @@ import warnings
 from clickhouse_driver.errors import SocketTimeoutError
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+#Personal libs
 from main import *
 from fullCalc import *
 from checker import *
 from cleaner import envCleaner
 from OpenVPNHandler import OpenVPN
+from svg import SVG
+
+
 
 app = Flask(__name__)
 load_dotenv()
@@ -47,43 +50,36 @@ def fullCalculator():
             customApprove=request.form.get('approve')
             if cpa!='':
                 try:
-                    int(cpa)
-                    bid=cpa
+                    bid=int(cpa)
                 except ValueError:
                     return make_response(
                                     redirect(url_for("valNotFound", 
                                                           value="CPA")))
             else:
-                bid=1500
-                cpa='none'
-            cr=0
-            ctr=0
+                bid=0
 
             if customApprove!='':
                 try:
-                    int(customApprove)
-                    approve=customApprove
+                    approve=int(customApprove)
                 except ValueError:
                     return make_response(
                                     redirect(url_for("valNotFound", 
                                                         value="approve")))
             else:
                 approve=25
-                customApprove='none'
-            epc=0
-            ecpm=0
 
         pred_n = int(request.form.get('pred_n'))
         minAccurancy = float(request.form.get('accurancy'))
         try:
-            resultDict = fullCalc(bid=bid, approve=approve, cr=cr, 
-                        ctr=ctr, epc=epc, ecpm=ecpm, pred_n=pred_n,
+            if approve>=1:
+                approve=approve/100
+            resultDict = fullCalc(pred_n=pred_n,
                         minAccurancy=minAccurancy,
                         campaignId=campaignId,
                         campaignName=campaignName, 
-                        custom_approve=customApprove,
-                        custom_bid=cpa)
-        except ch.errors.SocketTimeoutError:
+                        custom_approve=approve,
+                        custom_bid=bid)
+        except SocketTimeoutError:
             vpn = OpenVPN()
             vpn.connect()
             
@@ -306,7 +302,8 @@ def fullPlot(campaign):
 
 @app.route("/factor_analysis/<campaign>", methods=['GET'])
 def factorAnalysis(campaign):
-
+    camName = f'{campaign}.html'
+    return render_template(f'factorAnalysis/factor_{camName}')
 
 @app.route("/full_table/<campaign>", methods=['GET'])
 def fullTable(campaign):

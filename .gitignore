@@ -1,7 +1,7 @@
 .env
 __pycache__/*
 ./test/
-winFlask/*
+init/*
 templates/tables/*
 templates/plots/*
 resultsBin/full*
