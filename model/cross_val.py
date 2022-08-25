@@ -2,7 +2,7 @@ from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import mean_squared_error
 import numpy as np
 
-from hw import HoltWinters
+from model.hw import HoltWinters
 
 class CVScore:
     def __init__(self, data, n_split):

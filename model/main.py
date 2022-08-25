@@ -1,18 +1,15 @@
-import pandas as pd
-import clickhouse_driver as ch
 from dotenv import load_dotenv
-import os
 from scipy.optimize import minimize
 import plotly.graph_objects as go
 
-from hw import HoltWinters
-from minmizeStopper import *
-from cross_val import CVScore
-from marginCalc import *
+from model.hw import HoltWinters
+from services.minmizeStopper import *
+from model.cross_val import CVScore
+from model.marginCalc import *
 
 
 def loadData(host, user, password, campaign_name):
-    with open('./queries/q.sql', 'r') as f:
+    with open('model/queries/q.sql', 'r') as f:
         q = f.read()
     q=q.replace('${NAME}', campaign_name)
     q=q.replace('${MODE}', 'ad_shows')
@@ -172,7 +169,7 @@ def main(campaign, pred_n, minAccurancy, custom_bid,
             beta, gamma, sumShows, df_save]
 
 def mainAll(campaign, pred_n, minAccurancy, ctr, cr, approve, 
-                    custom_approve, custom_bid, full=False):
+                    custom_approve, custom_bid):
     d = main(campaign, pred_n, minAccurancy, custom_bid)
     df_save = d.pop(-1)
     df_save['shows_forecast'] = df_save['forecast'].astype(int).copy()
@@ -199,12 +196,8 @@ def mainAll(campaign, pred_n, minAccurancy, ctr, cr, approve,
     df_save['confirm_postbacks_forecast'] = (df_save['postbacks_forecast']*custom_approve).astype(int).copy()
     
     campaignSave=campaign.replace(' | ', '_')
-    if full:
-        with open(f'./templates/tables/fullTable_{campaignSave}.html', 'w+') as f:
-            f.write(df_save.to_html())
-    else:
-        with open(f'./templates/tables/table_{campaignSave}.html', 'w+') as f:
-            f.write(df_save.to_html())
+    with open(f'./templates/tables/fullTable_{campaignSave}.html', 'w+') as f:
+        f.write(df_save.to_html())
     return [d, meanClicks, stdClicks, medianClicks,
             meanPostbacks, stdPostbacks, medianPostbacks,
             meanConfirmPostbacks, stdConfirmPostbacks, medianConfirmPostbacks]

@@ -12,3 +12,4 @@ shell.ipynb
 .vs
 env/*
 envForIPython/*
+.idea/*

@@ -1,4 +1,4 @@
-from svg import SVG
+from services.svg import SVG
 
 class SalesFunnel():
     

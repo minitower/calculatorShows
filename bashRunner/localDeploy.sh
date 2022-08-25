@@ -1,1 +1,0 @@
-export FLASK_APP=server && cd .. && flask run

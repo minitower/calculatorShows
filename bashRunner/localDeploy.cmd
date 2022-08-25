@@ -1,1 +1,0 @@
-cd C:\Users\user\Projects\forecaster\ && winFlask\Scripts\activate && flask --app server run --host=0.0.0.0

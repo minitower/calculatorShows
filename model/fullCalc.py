@@ -1,21 +1,13 @@
-# Open libs
-import pandas as pd
-import clickhouse_driver as ch
-from dotenv import load_dotenv
-import os
-
 # Project script
-from main import *
-from cpaEncounter import cpaEnc
-from approveEncounter import appEnc
+from model.main import *
 
 
 def loadCheckData(host, user, password,
                   bid, ecpm, step):
     campaignsPriority = ['RU', 'KZ', 'UA', 'BY']
-    campaigns=None
+    campaigns = None
 
-    with open('./queries/q2.sql', 'r') as f:
+    with open('model/queries/q2.sql', 'r') as f:
         q = f.read()
     q = q.replace('${BID}', str(bid))
 
@@ -26,17 +18,17 @@ def loadCheckData(host, user, password,
     df = pd.DataFrame(sqlCH.execute(q))
     df.columns = ['campaigns', 'adv_id', 'shows',
                   'postbacks', 'ecpm']
-    df['diff'] = abs(df['ecpm']-ecpm)
+    df['diff'] = abs(df['ecpm'] - ecpm)
     df['geo'] = df['campaigns'].apply(lambda x: x[:2])
     df_diff = df.loc[df['diff'] == df['diff'].min()]
     for i in campaignsPriority:
         check = df_diff.loc[df_diff['geo'] == i]
         if not check.empty:
-            campaigns = check['campaigns'].values[0+step]
+            campaigns = check['campaigns'].values[0 + step]
             break
     if campaigns is None:
         campaigns = df_diff.sort_values(by='shows',
-                                        ascending=False)['campaigns'].values[0+step]
+                                        ascending=False)['campaigns'].values[0 + step]
     return campaigns
 
 
@@ -47,8 +39,9 @@ def resultParser(result):
                 beta=result[6], gamma=result[7],
                 sumShows=result[8])
 
+
 def getCampaignById(host, user, password, campaignId):
-    with open('./queries/q_campaignId.sql', 'r') as f:
+    with open('model/queries/q_campaignId.sql', 'r') as f:
         q = f.read()
     q = q.replace('${CAMPAIGNS_ID}', str(campaignId))
 
@@ -61,7 +54,7 @@ def getCampaignById(host, user, password, campaignId):
 
 
 def getCampaignStatByName(host, user, password, campaign):
-    with open('./queries/q_campaign_stat.sql', 'r') as f:
+    with open('model/queries/q_campaign_stat.sql', 'r') as f:
         q = f.read()
     q = q.replace('${NAME}', str(campaign))
 
@@ -69,7 +62,7 @@ def getCampaignStatByName(host, user, password, campaign):
                       user=user,
                       password=password)
     df = pd.DataFrame(sqlCH.execute(q))
-    df.columns=['name', 'bid', 'approve', 'ctr', 'cr', 'epc', 'ecpm']
+    df.columns = ['name', 'bid', 'approve', 'ctr', 'cr', 'epc', 'ecpm']
     bid = df['bid'].mean()
     approve = df['approve'].mean()
     ctr = df['ctr'].mean()
@@ -79,7 +72,7 @@ def getCampaignStatByName(host, user, password, campaign):
     return [bid, approve, ctr, cr, epc, ecpm]
 
 
-def fullCalc(pred_n, minAccurancy, campaignId, 
+def fullCalc(pred_n, minAccurancy, campaignId,
              campaignName, custom_approve, custom_bid):
     load_dotenv()
     host = os.environ.get("HOST")
@@ -88,45 +81,44 @@ def fullCalc(pred_n, minAccurancy, campaignId,
 
     if campaignId is not None:
         campaign = getCampaignById(host=host,
-                                 user=user,
-                                 password=password,
-                                 campaignId=campaignId)
+                                   user=user,
+                                   password=password,
+                                   campaignId=campaignId)
     elif campaignName is not None:
-        campaign=campaignName
-        
+        campaign = campaignName
+
     try:
         bid, approve, ctr, cr, epc, ecpm = getCampaignStatByName(host=host,
-                                                user=user,
-                                                password=password,
-                                                campaign=campaign)
+                                                                 user=user,
+                                                                 password=password,
+                                                                 campaign=campaign)
     except ValueError:
         return {'err': "No shows"}
-    
+
     paramDict, meanClicks, stdClicks, medianClicks, \
-        meanPostbacks, stdPostbacks, medianPostbacks,\
-        meanConfirmPostbacks, stdConfirmPostbacks, \
-        medianConfirmPostbacks = mainAll(campaign=campaign,
-                    pred_n=pred_n,
-                    minAccurancy=minAccurancy,
-                    ctr=ctr, cr=cr, approve=approve,
-                    custom_approve=custom_approve, 
-                    custom_bid=custom_bid,
-                    full=True)
+    meanPostbacks, stdPostbacks, medianPostbacks, \
+    meanConfirmPostbacks, stdConfirmPostbacks, \
+    medianConfirmPostbacks = mainAll(campaign=campaign,
+                                     pred_n=pred_n,
+                                     minAccurancy=minAccurancy,
+                                     ctr=ctr, cr=cr, approve=approve,
+                                     custom_approve=custom_approve,
+                                     custom_bid=custom_bid)
 
     if paramDict[0] == 'error 2':
         paramDict = {'err': "Predict can't be calculated"}
 
     elif paramDict[0] != 'error 2':
         paramDict = resultParser(result=paramDict)
-        paramDict.update(dict(bid=bid, approve=approve*100, ctr=ctr*100, 
-                            cr=cr*100, epc=epc, ecpm=ecpm, campaign=campaign,
-                            meanClicks=meanClicks, stdClicks=stdClicks, 
-                            medianClicks=medianClicks, meanPostbacks=meanPostbacks, 
-                            stdPostbacks=stdPostbacks, medianPostbacks=medianPostbacks,
-                            meanConfirmPostbacks=meanConfirmPostbacks, 
-                            stdConfirmPostbacks=stdConfirmPostbacks,
-                            medianConfirmPostbacks=medianConfirmPostbacks, 
-                            sumClicks=paramDict['sumShows']*ctr,
-                            sumPostbacksUnconf=paramDict['sumShows']*ctr*cr,
-                            sumPostbacksConf=paramDict['sumShows']*ctr*cr*custom_approve))
+        paramDict.update(dict(bid=bid, approve=approve * 100, ctr=ctr * 100,
+                              cr=cr * 100, epc=epc, ecpm=ecpm, campaign=campaign,
+                              meanClicks=meanClicks, stdClicks=stdClicks,
+                              medianClicks=medianClicks, meanPostbacks=meanPostbacks,
+                              stdPostbacks=stdPostbacks, medianPostbacks=medianPostbacks,
+                              meanConfirmPostbacks=meanConfirmPostbacks,
+                              stdConfirmPostbacks=stdConfirmPostbacks,
+                              medianConfirmPostbacks=medianConfirmPostbacks,
+                              sumClicks=paramDict['sumShows'] * ctr,
+                              sumPostbacksUnconf=paramDict['sumShows'] * ctr * cr,
+                              sumPostbacksConf=paramDict['sumShows'] * ctr * cr * custom_approve))
     return paramDict

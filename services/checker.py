@@ -11,7 +11,7 @@ class Checker:
             self.campaignId = None
         
     def checkId(self):
-        with open('./queries/check/q_campaign_check.sql', 'r') as f:
+        with open('model/queries/check/q_campaign_check.sql', 'r') as f:
             q = f.read()
 
         sqlCH = ch.Client(host="192.168.235.72",
@@ -25,7 +25,7 @@ class Checker:
             return True
     
     def checkName(self):
-        with open('./queries/check/q_name_check.sql', 'r') as f:
+        with open('model/queries/check/q_name_check.sql', 'r') as f:
             q = f.read()
 
         sqlCH = ch.Client(host="192.168.235.72",
