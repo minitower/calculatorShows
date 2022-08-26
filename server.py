@@ -8,7 +8,7 @@ from clickhouse_driver.errors import SocketTimeoutError
 # Personal libs
 from model.fullCalc import *
 from services.cleaner import envCleaner
-from services.OpenVPNHandler import OpenVPN
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 app = Flask(__name__)
@@ -30,6 +30,7 @@ if bool(os.environ.get('SERVER_TABLE_CLEAN')):
 host = os.environ.get("HOST")
 user = os.environ.get("CLICKHOUSE_USERNAME")
 password = os.environ.get("PASSWORD")
+
 
 @app.route('/', methods=['GET', 'POST'])
 def fullCalculator():
@@ -53,7 +54,7 @@ def fullCalculator():
                         redirect(url_for("valNotFound",
                                          value="CPA")))
             else:
-                bid = 0
+                bid = None
 
             if customApprove != '':
                 try:
@@ -63,22 +64,18 @@ def fullCalculator():
                         redirect(url_for("valNotFound",
                                          value="approve")))
             else:
-                approve = 25
+                approve = None
 
         pred_n = int(request.form.get('pred_n'))
         minAccurancy = float(request.form.get('accurancy'))
-        try:
-            if approve >= 1:
-                approve = approve / 100
-            resultDict = fullCalc(pred_n=pred_n,
-                                  minAccurancy=minAccurancy,
-                                  campaignId=campaignId,
-                                  campaignName=campaignName,
-                                  custom_approve=approve,
-                                  custom_bid=bid)
-        except SocketTimeoutError:
-            vpn = OpenVPN()
-            vpn.connect()
+        if approve >= 1:
+            approve = approve / 100
+        resultDict = fullCalc(pred_n=pred_n,
+                              minAccurancy=minAccurancy,
+                              campaignId=campaignId,
+                              campaignName=campaignName,
+                              custom_approve=approve,
+                              custom_bid=bid)
 
         try:
             if resultDict['err'] == "No shows":

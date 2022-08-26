@@ -95,6 +95,11 @@ def fullCalc(pred_n, minAccurancy, campaignId,
     except ValueError:
         return {'err': "No shows"}
 
+    if custom_bid is None:
+        custom_bid = bid
+    if custom_approve is None:
+        custom_approve = approve
+    
     paramDict, meanClicks, stdClicks, medianClicks, \
     meanPostbacks, stdPostbacks, medianPostbacks, \
     meanConfirmPostbacks, stdConfirmPostbacks, \

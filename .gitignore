@@ -13,3 +13,5 @@ shell.ipynb
 env/*
 envForIPython/*
 .idea/*
+model/__pycache__/*
+services/__pycache__/*
