@@ -1,6 +1,5 @@
 # Public libs
 import os.path
-
 from flask import *
 import pickle
 import warnings
@@ -14,8 +13,11 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 app = Flask(__name__)
 load_dotenv()
 
+# TODO Delete all print() methods
+
+
 # Set extra env variables
-os.environ.setdefault('PROJECTPATH', os.path.dirname(__file__))
+os.environ.setdefault('PROJECT_PATH', os.path.dirname(__file__))
 
 # Clean temp files
 if bool(os.environ.get('SERVER_INFO_CLEAN')):
@@ -35,41 +37,57 @@ password = os.environ.get("PASSWORD")
 @app.route('/', methods=['GET', 'POST'])
 def fullCalculator():
     if request.method == 'POST':
-        custom = request.form.get('custom')
-        if not custom:
+        if len(request.form)>0:
+            argsInUrl=False
+        elif len(request.args)>0:
+            argsInUrl=True
+
+        if not argsInUrl:
             campaignId = request.form.get('campaignId')
-            campaignName = None
-            try:
-                int(campaignId)
-            except ValueError:
+        else:
+            campaignId = request.args.get('campaignId')
+        campaignName = None
+        print(request.args.get('pred_n'), request.form, request.args)
+        try:
+            int(campaignId)
+        except ValueError:
+            if not argsInUrl:
                 campaignName = request.form.get('campaignId')
-                campaignId = None
+            else:
+                campaignName = request.args.get('campaignId')
+            campaignId = None
+        if not argsInUrl:
             cpa = request.form.get('cpa')
             customApprove = request.form.get('approve')
-            if cpa != '':
-                try:
-                    bid = int(cpa)
-                except ValueError:
-                    return make_response(
-                        redirect(url_for("valNotFound",
-                                         value="CPA")))
-            else:
-                bid = None
+        else:
+            cpa = request.args.get('cpa')
+            customApprove = request.args.get('approve')
+        if cpa != '':
+            try:
+                bid = int(cpa)
+            except ValueError:
+                return make_response(
+                    redirect(url_for("valNotFound",
+                                     value="CPA")))
+        else:
+            bid = None
 
-            if customApprove != '':
-                try:
-                    approve = int(customApprove)
-                except ValueError:
-                    return make_response(
-                        redirect(url_for("valNotFound",
-                                         value="approve")))
-            else:
-                approve = None
-
-        pred_n = int(request.form.get('pred_n'))
-        minAccurancy = float(request.form.get('accurancy'))
-        if approve >= 1:
-            approve = approve / 100
+        if customApprove != '':
+            try:
+                approve = int(customApprove)
+            except ValueError:
+                return make_response(
+                    redirect(url_for("valNotFound",
+                                     value="approve")))
+        else:
+            approve = None
+        if not argsInUrl:
+            pred_n = int(request.form.get('pred_n'))
+            minAccurancy = float(request.form.get('accurancy'))
+        else:
+            pred_n = int(request.args.get('pred_n'))
+            minAccurancy = float(request.args.get('accurancy'))
+        
         resultDict = fullCalc(pred_n=pred_n,
                               minAccurancy=minAccurancy,
                               campaignId=campaignId,
@@ -140,7 +158,8 @@ def fullCalculator():
                 diffConfPostCell = 'darkred'
                 arrPathConfPost = url_for('static', filename='img/arrowDown.svg')
 
-            res = make_response(render_template('full_result.html',
+            if not argsInUrl:
+                res = make_response(render_template('full_result.html',
                                                 bid='{:,}'.format(round(resultDict['bid'], 3)).replace(',', ' '),
                                                 userBid=cpa,
                                                 approve='{:,}'.format(round(resultDict['approve'], 3)).replace(',',
@@ -205,6 +224,43 @@ def fullCalculator():
                                                     ',', ' '),
                                                 arrPathShows=arrPathShows, arrPathClicks=arrPathClicks,
                                                 arrPathPost=arrPathPost, arrPathConfPost=arrPathConfPost))
+            else:
+                res=make_response(jsonify({
+                            'input_data': {
+                                'campaign': resultDict['campaign'], 
+                                'bid': resultDict['bid'],
+                                'userBid': cpa,
+                                'approve': resultDict['approve'],
+                                'userApprove': customApprove,
+                                'cr': resultDict['cr'], 
+                                'ctr': resultDict['ctr'],
+                                'epc': resultDict['epc'],
+                                'ecpm': resultDict['ecpm']
+                            },
+                            'model_data':{
+                                'accurancy': resultDict['accurancy'],
+                                'mean': resultDict['mean'],
+                                'std': resultDict['std'],
+                                'median': resultDict['median']
+                            },
+                            'approve_check': {
+                                'postbacks_forecast': int(int(resultDict['sumPostbacksUnconf']) / int(
+                                                        resultDict['pred_n'] / 24)),
+                                'conf_postbacks_forecast': int(int(resultDict['sumPostbacksConf']) / int(
+                                                        resultDict['pred_n'] / 24))
+                            },
+                            'pathes': {
+                                'tableName': url_for('fullTable', campaign=campaign),
+                                'plotNameShows': url_for('fullPlot', campaign=campaign),
+                                'factorAnalysis': url_for('factorAnalysis', campaign=campaign)
+                            },
+                            'trend': {
+                                'shows': diffShowsForecastUnform,
+                                'clicks': diffClicksForecastUnform,
+                                'postbacks':diffPostForecastUnform,
+                                'confirmed_postbacks': diffConfPostForecastUnform
+                            }
+                }))
 
             with open(f'./resultsBin/full_{campaign}.pickle', 'wb') as f:
                 pickle.dump(resultDict, f, protocol=pickle.HIGHEST_PROTOCOL)
@@ -347,4 +403,4 @@ def valNotFound(value):
 
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run(host='0.0.0.0', port=8080)

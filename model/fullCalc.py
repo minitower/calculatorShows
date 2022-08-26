@@ -100,6 +100,9 @@ def fullCalc(pred_n, minAccurancy, campaignId,
     if custom_approve is None:
         custom_approve = approve
     
+    if custom_approve >= 1:
+        custom_approve = custom_approve / 100
+    
     paramDict, meanClicks, stdClicks, medianClicks, \
     meanPostbacks, stdPostbacks, medianPostbacks, \
     meanConfirmPostbacks, stdConfirmPostbacks, \

@@ -89,6 +89,31 @@ class SVG(object):
         """
 
         self.__add_to_svg(self.templates["rectangle"].format(fill, stroke, strokewidth, width, height, y, x, radiusy, radiusx))
+    
+    def trapeze(self, stroke, strokewidth, x0, y0, h, lLine, uLine):
+        """
+        Adds a trapeze to SVG file
+        """
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, y0, lLine, y0, x0))
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, h, lLine-((lLine-uLine)/2), h, x0+((lLine - uLine)/2)))
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, h, x0+((lLine-uLine)/2), y0, x0))
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, h, lLine-((lLine-uLine)/2), y0, lLine))
+        
+    def eqTriangle(self, stroke, strokewidth, x0, y0, base):
+        """
+        Function for build equilateral triangle to SVG file
+        """
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, y0, base, y0, x0))
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, base, base/2, 0, x0))
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, base, base/2, 0, base))
+        
+    def isoTriangle(self, stroke, strokewidth, x0, y0, base, h):
+        """
+        Function for build isosceles triangle to SVG file
+        """
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, y0, base, y0, x0))
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, h, base/2, 0, x0))
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, h, base/2, 0, base))
 
     def fill(self, Fill):
 
@@ -130,7 +155,5 @@ class SVG(object):
         """
 
         f = open(path, "w+")
-
         f.write(str(self))
-
         f.close() 

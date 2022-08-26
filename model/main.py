@@ -12,11 +12,12 @@ def loadData(host, user, password, campaign_name):
     with open('model/queries/q.sql', 'r') as f:
         q = f.read()
     q=q.replace('${NAME}', campaign_name)
-    q=q.replace('${MODE}', 'ad_shows')
+    print(q)
     sqlCH = ch.Client(host=host,
                         user=user,
                         password=password)
     df = pd.DataFrame(sqlCH.execute(q))
+    
     df.columns = ['datetime', 'shows', 'cpa']
     df['datetime'] = pd.to_datetime(df['datetime'])
     df['shows'] = df['shows'].astype(int)
@@ -24,6 +25,7 @@ def loadData(host, user, password, campaign_name):
     df = df.drop(df.loc[df['shows'] == 0].index)\
             .reset_index().drop('index', axis=1)
     df = df[:-20]
+    df = df.fillna(method='pad')
     return df
 
 def loadDataLocal(path, campaign_name):
@@ -35,6 +37,7 @@ def loadDataLocal(path, campaign_name):
     df = df.drop(df.loc[df['shows'] == 0].index)\
             .drop(df.index.values[-5:])\
             .reset_index().drop('index', axis=1)
+    df = df.fillna(method='pad')
     return df
 
 def paramInit(df, x, callback=None):

@@ -15,3 +15,4 @@ envForIPython/*
 .idea/*
 model/__pycache__/*
 services/__pycache__/*
+tests/__pycache__/*

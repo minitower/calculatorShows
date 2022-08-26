@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <title>Full forecast results</title>
+    <link rel="stylesheet" href="Full%20forecast%20results_files/full_result.css">
+</head>
+<body>
+    <div class="sidenav">
+        <a href="http://127.0.0.1:5000/full_table/RU_%D0%9E%D0%BC%D0%BE%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5">Table with predict</a>
+        <a href="http://127.0.0.1:5000/full_plot_shows/RU_%D0%9E%D0%BC%D0%BE%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5">Plot (shows)</a>
+        <a href="http://127.0.0.1:5000/factor_analysis/RU_%D0%9E%D0%BC%D0%BE%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5">Factor analysis of trend and user info</a>
+        <a href="http://127.0.0.1:5000/">Back to main screen</a>
+    </div>
+    <div class="main">
+        <div class="grid-container">
+            <div class="stat">
+                <h2 id="statHead">Output data</h2>
+                <div id="inputData">
+
+                    <p id="bid">
+                        <b class="bold">
+                            Bid:
+                        </b> 1 027.539
+                        </p><div class="addictionInfo">
+                            <b class="bold">
+                                user bid:
+                            </b> 
+                            10000
+                        </div>
+                    <p></p>
+
+                    <p id="approve">
+                        <b class="bold">
+                            Approve:
+                        </b> 25.905 
+                        </p><div class="addictionInfo">
+                        <b class="bold">
+                            user approve:
+                        </b>
+                        30 %
+                        </div>
+                    <p></p>
+                    <p id="cr"><b class="bold">CR:</b> 1.854</p>
+                    <p id="ctr"><b class="bold">CTR:</b> 1.497</p>
+                    <p id="epc"><b class="bold">EPC:</b> 4.717</p>
+                    <p id="ecpm"><b class="bold">eCPM:</b> 68.139</p>
+                </div>
+            </div>
+            <div class="modelStat">
+                <h2 id="modelStatHead">Models result</h2>
+                <p id="accurancy"><b class="bold">Accurancy:</b> 1.0</p>
+                <p id="length"><b class="bold">Predict length:</b> 1 days</p>
+                <p id="modelName"><b class="bold">Model name:</b> Holt-Winters model</p>
+                <div id="paramContainer">
+                    <p id="param"><b class="bold">Parameters:</b></p>
+                    <li><b class="param">alpha:</b> 0.0</li>
+                    <li><b class="param">beta:</b> 0.0</li>
+                    <li><b class="param">gamma:</b> 1.0</li>
+                </div>
+                <p id="cvScore"><b class="bold">Parameters accurancy function:</b> CV score</p>
+            </div>
+            <div class="dataStat">
+                <h2 id="dataStatHead">Data statistic</h2>
+                <table id="dataTable">
+                    <tbody><tr><th class="headerTable">Parameter name</th>
+                    <th class="headerTable">Mean</th>
+                    <th class="headerTable">Standart deviation</th>
+                    <th class="headerTable">Current</th>
+                    <th class="headerTable">Foreast</th>
+                    <th class="headerTable">Difference</th>
+                    </tr><tr class="rowTable">
+                        <td class="paramName">Shows</td>
+                        <td class="valueTable">845 724</td>
+                        <td class="valueTable">341 993</td>
+                        <td class="valueTable">728 659</td>
+                        <td class="valueTable">10 857 633</td>
+                        <td style="background-color: darkgreen" class="valueTable">
+                            <div class="diffValue">                      
+                                <img class="arrow" src="Full%20forecast%20results_files/arrowUp.svg">10 128 974
+                            </div> 
+                        </td>
+                    </tr>
+                    <tr class="rowTable">
+                        <td class="paramName">Clicks</td>
+                        <td class="valueTable">12 661</td>
+                        <td class="valueTable">5 120</td>
+                        <td class="valueTable">10 909</td>
+                        <td class="valueTable">162 556</td>
+                        <td style="background-color: darkgreen" class="valueTable">
+                            <div class="diffValue">
+                                <img src="Full%20forecast%20results_files/arrowUp.svg" class="arrow"> 151 647
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="rowTable">
+                        <td class="paramName">Postbacks (total)</td>
+                        <td class="valueTable">234</td>
+                        <td class="valueTable">94</td>
+                        <td class="valueTable">202</td>
+                        <td class="valueTable">3 013</td>
+                        <td style="background-color: darkgreen" class="valueTable">
+                            <div class="diffValue">
+                                <img src="Full%20forecast%20results_files/arrowUp.svg" class="arrow"> 2 811
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="rowTable">
+                        <td class="paramName">Postbacks (confirmed)</td>
+                        <td class="valueTable">60</td>
+                        <td class="valueTable">24</td>
+                        <td class="valueTable">52</td>
+                        <td class="valueTable">904</td>
+                        <td style="background-color: darkgreen" class="valueTable">
+                            <div class="diffValue">
+                                <img src="Full%20forecast%20results_files/arrowUp.svg" class="arrow"> 852
+                                
+                            </div>    
+                        </td>
+                    </tr>
+
+                </tbody></table>
+            </div>
+            <div class="result">
+                <h2 id="resultHead">Results</h2>
+                <p id="sum">For 1 days predict sum of shows is <b class="result">10 857 633 shows</b></p>
+                <p id="clicks">With this information sum of clicks by interval of 
+                                    1 day if <b class="result">162 556 clicks</b></p>
+                <p id="postbacks">
+                    So, with CR and approve we have <b class="result">3 013 unconfirmed postbacks</b>  and 
+                    <b class="result">904 confirmed postbacks</b>
+                </p>
+            </div>
+        </div>
+    </div> 
+
+</body></html>
