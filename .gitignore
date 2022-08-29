@@ -16,3 +16,4 @@ envForIPython/*
 model/__pycache__/*
 services/__pycache__/*
 tests/__pycache__/*
+static/img/factorAnalysis/*
