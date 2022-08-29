@@ -9,7 +9,8 @@ load_dotenv()
 class SalesFunnel:
 
     def __init__(self, shows, clicks, postbacks, 
-                 confirmed_postbacks, campaign, path=None):
+                 confirmed_postbacks, campaign, 
+                 filename):
         """
         Class for build factor analysis for forecaster site. 
         Args shows, clicks, postbacks, confirmed_postbacks depend to area of trapeze.
@@ -27,37 +28,26 @@ class SalesFunnel:
             path: path-like - path to final SVG file
         """
         # Find and check filepath for SVG file
-        if path is None:
-            if os.environ.get('SALES_FUNNEL_PATH') is not None:
-                self.path = os.environ.get('SALES_FUNNEL_PATH')
-            else:
-                self.path = Path(os.environ.get('PROJECT_PATH'))\
-                    / Path('static/img/factorAnalysis')
-        else:
-            self.path = Path(path)
-        if not os.path.exists(self.path):
-            self.path = Path(os.environ.get('PROJECT_PATH'))\
-                    / Path('static/img/factorAnalysis')
-            if not os.path.exists(self.path):
-                print(self.path)
-                raise FileNotFoundError("Can't found default path and/or custom user path!")
-            else:
-                warnings.warn("Path for module 'services.salesFunnel'"
-                                    f"is did not exist! Use default path: {self.path}")
-        self.path = self.path / Path(f'salesFunnel_{campaign}.svg')
+        self.path = Path(os.environ.get('PROJECT_PATH'))\
+                    / Path('static/img/factorAnalysis') / Path(filename)
         # Binding main class variable
         self.s = SVG()
+        self.s2=SVG()
+        self.s2.create(400, 400)
         self.shows = shows
         self.clicks = clicks
         self.postbacks = postbacks
         self.confirmed_postbacks = confirmed_postbacks
         # Binding colors of funnel
-        self.colorArr = [os.environ.get('SALES_FUNNEL_FIRST_COLOR'),
-                          os.environ.get('SALES_FUNNEL_SECOND_COLOR'),
-                          os.environ.get('SALES_FUNNEL_THIRD_COLOR'),
-                          os.environ.get('SALES_FUNNEL_FOURTH_COLOR')]
+        self.colorArr = [os.environ.get('SALES_FUNNEL_FIRST_LINE_COLOR'),
+                          os.environ.get('SALES_FUNNEL_SECOND_LINE_COLOR'),
+                          os.environ.get('SALES_FUNNEL_THIRD_LINE_COLOR'),
+                          os.environ.get('SALES_FUNNEL_FOURTH_LINE_COLOR')]
         self.baseColor = os.environ.get('SALES_FUNNEL_BASE_COLOR')
-        print(self.baseColor)
+        self.font_family = os.environ.get('SALES_FUNNEL_FONT_FAMILY')
+        self.font_color = os.environ.get('SALES_FUNNEL_FONT_COLOR')
+        self.font_size = os.environ.get('SALES_FUNNEL_FONT_SIZE')
+        self.font_margin = os.environ.get('SALES_FUNNEL_FONT_MARGIN')
         
         if self.baseColor is None:
             warnings.warn('Base color of funnel is not defined! Set to #000000 (black)')
@@ -98,7 +88,7 @@ class SalesFunnel:
             self.confirmed_postbacks = confirmed_postbacks/2 # divide all variable for stay CR, CTR and approve the same
             self.w = self.shows
         # Create SVG file in RAM
-        self.s.create(self.w, self.h*3+self.lastSectorHeigth)
+        self.s.create(self.w+1000, self.h*3+self.lastSectorHeigth+1000) # (+100 for info, 3 trapeze + 1 triangle)
         
     def baseDotCalc(self):
         """
@@ -112,6 +102,8 @@ class SalesFunnel:
         self.y0_post = self.y0_clicks+self.h
         self.x0_postConf = self.x0_post+((self.postbacks-self.confirmed_postbacks)/2)
         self.y0_postConf = self.y0_post+self.h
+        print(self.x0_clicks, self.y0_clicks, self.x0_post, self.y0_post, 
+              self.x0_postConf, self.y0_postConf)
         
     def buildFunnel(self):
         """
@@ -119,22 +111,58 @@ class SalesFunnel:
         """
         self.baseDotCalc() # Calculate value for (x0, y0) of sectors
         self.s.trapeze(self.colorArr[0], 4, 0, 0, self.h, self.shows, self.clicks)
-        self.s.trapeze(self.colorArr[1], 4, self.x0_clicks, self.y0_clicks, self.h, 
-                                self.clicks, self.postbacks)
-        self.s.trapeze(self.colorArr[2], 4, self.x0_post, self.y0_post, self.h, 
-                                self.postbacks, self.confirmed_postbacks)
+        self.s.trapeze(self.colorArr[1], 4, self.x0_clicks, self.y0_clicks, self.h*2, 
+                                self.x0_clicks+self.clicks, self.x0_post+self.postbacks)
+        self.s.trapeze(self.colorArr[2], 4, self.x0_post, self.y0_post, self.h*3, 
+                                self.x0_post+self.postbacks, self.x0_postConf+self.confirmed_postbacks)
         if self.eqLastSector:
+            print('equal')
             self.s.eqTriangle(self.colorArr[3], 4, 
                               self.x0_postConf, 
                               self.y0_postConf, 
-                              base=self.confirmed_postbacks) # side of triangle equal to number of confirmed postbacks 
+                              base=self.confirmed_postbacks,
+                              h=self.lastSectorHeigth) # side of triangle equal to number of confirmed postbacks 
         else:
+            print('iso')
             self.s.isoTriangle(self.colorArr[3], 4, 
-                               self.x0_postConf, 
+                               self.x0_postConf+self.confirmed_postbacks, 
                                self.y0_postConf,
                                base=self.confirmed_postbacks,
                                h=self.lastSectorHeigth)
 
+    def addInfo(self):
+        """
+        Add information about each trapeze of sales funnel
+        """
+        self.s.text(x=self.shows+int(self.font_margin), 
+                    y=self.font_margin,
+                    fontfamily=self.font_family, 
+                    fontsize=self.font_size,
+                    fill=self.font_color,
+                    stroke=14,
+                    text=f'Shows: {self.shows}')
+        self.s.text(x=self.shows+int(self.font_margin), 
+                    y=self.h+int(self.font_margin),
+                    fontfamily=self.font_family, 
+                    fontsize=self.font_size,
+                    fill=self.font_color,
+                    stroke=14,
+                    text=f'Clicks: {self.clicks}')
+        self.s.text(x=self.shows+int(self.font_margin), 
+                    y=self.h*2+int(self.font_margin),
+                    fontfamily=self.font_family, 
+                    fontsize=self.font_size,
+                    fill=self.font_color,
+                    stroke=14,
+                    text=f'Leads: {self.postbacks}')
+        self.s.text(x=self.shows+int(self.font_margin), 
+                    y=self.h*3+int(self.font_margin),
+                    fontfamily=self.font_family, 
+                    fontsize=self.font_size,
+                    fill=self.font_color,
+                    stroke=14,
+                    text=f'Conf. leads: {self.confirmed_postbacks}')
+        
     def save(self):
         self.s.finalize()
         try:
@@ -147,6 +175,8 @@ if __name__ == "__main__":
                           str(os.path.dirname(os.path.abspath(__file__)) / 
                           Path('./../')))
     sf = SalesFunnel(shows=100, clicks=50, postbacks=35, 
-                     confirmed_postbacks=20, campaign='RU_test')
+                     confirmed_postbacks=20, campaign='RU_test',
+                     path='static/img/factorAnalysis/salesFunnel_RU_test2.svg')
     sf.buildFunnel()
+    sf.addInfo()
     sf.save()

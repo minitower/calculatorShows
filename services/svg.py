@@ -99,13 +99,13 @@ class SVG(object):
         self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, h, x0+((lLine-uLine)/2), y0, x0))
         self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, h, lLine-((lLine-uLine)/2), y0, lLine))
         
-    def eqTriangle(self, stroke, strokewidth, x0, y0, base):
+    def eqTriangle(self, stroke, strokewidth, x0, y0, base, h):
         """
         Function for build equilateral triangle to SVG file
         """
-        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, y0, base, y0, x0))
-        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, base, base/2, 0, x0))
-        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, base, base/2, 0, base))
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, y0, x0+base, y0, x0))
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, y0+base, x0+base/2, y0, x0))
+        self.__add_to_svg(self.templates["line"].format(stroke, strokewidth, y0+base, x0+base/2, y0, x0+base))
         
     def isoTriangle(self, stroke, strokewidth, x0, y0, base, h):
         """
