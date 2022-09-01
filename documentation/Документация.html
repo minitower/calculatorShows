@@ -1,0 +1,680 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Прогнозирование объема продаж по кампании (с учетом изменения CPA и/или апрува)</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-opaquegray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="311fc422-7052-40e3-8b95-b78060e87ebf" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">📈</span></div><h1 class="page-title">Прогнозирование объема продаж по кампании (с учетом изменения CPA и/или апрува)</h1></header><div class="page-body"><nav id="6a389c21-cf13-4d73-b588-5f3495d35f35" class="block-color-gray table_of_contents"><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#d526ab33-2a9a-4720-bf3c-ed8a8d7494e8">Общая информация</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#e555c39d-abc4-4d35-b5e7-d4e1f8be5580">Архитектура приложения</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#6558efcc-c22a-4f74-b676-52a2d200ec7b">Используемые библиотеки/фреймворки</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#c4cf28b6-f0b5-4fe1-b69c-9f24a850dcc8">Логические модули приложения</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#06d41233-ad40-486d-821d-cf5efe649d2c">Карта приложения</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#8b1651fd-890f-44b8-813e-de540cfd639b">Статистические модели приложения</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#ca910cea-d02a-4bd2-bb96-75daac7c375e">Рассчитываемые моделями метрики</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#e1c811b5-f350-48f1-87ae-5b5e1231ad37">Модель прогнозирования количества просмотров</a></div><div class="table_of_contents-item table_of_contents-indent-2"><a class="table_of_contents-link" href="#6cdd975a-1e98-49d1-a606-646ed7eb4ea5">Математическое описание модели и обоснование ее выбора</a></div><div class="table_of_contents-item table_of_contents-indent-2"><a class="table_of_contents-link" href="#6710c553-c148-4250-8838-33647f9baef7">Обучение модели Хольта-Уинтерса</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#b317e9bd-2c5b-4981-83bc-e5d9efefa03b">Модель влияния CPA на количество просмотров</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#1081be94-b868-4274-a8ec-ec9fb1272ba2">Модель влияния апрува на вывод модели</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#0a424d55-bd10-4582-8cff-fc08a803f052">Серверная часть</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#488592a5-ee47-4f32-a3a7-d9c45f9bc232">Файловая система приложения</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#3bfbcfc5-1466-48cf-bb63-525e4c186064">Маршруты и запросы серверной части</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#085f2468-4b6f-44df-aa65-6d1310f9eacc">Переменные окружения</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#016cc0ae-7b20-47e7-87f0-81e45a598210">Временные файлы и их удаление</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#f2430b3a-ecf9-45c6-815a-b8a04eb665a0">Вспомогательные файлы</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#74330d4c-7543-48d6-80a6-c64bb57e9efa">UI приложения</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#8dbbcb83-7066-4df2-9ea2-a524b71fbcf9">Отображаемые страницы приложения</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#03833aab-fa20-4375-8e1a-512261b99a45">Стили приложения</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#0c1710f3-80d0-436b-8737-2eb7e4379dfd">Отображение сторонних файлов (графиков, таблиц и прочее)</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#7992c801-9a0c-4ff5-8ef6-9e8d27eea41c">Необходимые доработки.</a></div></nav><h1 id="d526ab33-2a9a-4720-bf3c-ed8a8d7494e8" class="">Общая информация</h1><ul id="be0d8c67-e472-4328-871f-bf54fc14e5f8" class="bulleted-list"><li style="list-style-type:disc"><strong>Язык приложения:</strong> <strong>Python </strong>(серверная часть, модель прогнозирования, формирование конечных HTML файлов, тестирование и прочее), <strong>SQL</strong> (создание запросов к БД), <strong>CSS </strong>(создание таблицы стилей для конечных HTML файлов) и <strong>HTML </strong>(создание шаблонов веб-страниц);</li></ul><ul id="be328b39-0c2e-4e08-8056-a84fb3dcc669" class="bulleted-list"><li style="list-style-type:disc"><strong>Основные вспомогательные инструменты: Flask</strong> (серверная часть и формирование конечных HTML файлов), <strong>ClickHouse </strong>(организация БД, обработка запросов на получение данных), <strong>OpenVPN</strong> (организация маршрутов по сети для подключения к БД), <strong>Waitress </strong>(WSGI-сервер и обработка запросов к приложению Flask);</li></ul><ul id="607d226f-aa53-41fd-b302-b6d1a86fbd80" class="bulleted-list"><li style="list-style-type:disc"><strong>Общее описание модели</strong>: <ul id="bac6f306-6ae3-4b04-8d6f-74b2e678caf8" class="bulleted-list"><li style="list-style-type:circle"><strong>Модель для прогнозирование количества просмотров</strong>: модель Хольта-Уинтерса (тройное экспоненциальное сглаживание);</li></ul><ul id="d0e92631-da37-4a52-81fd-9ea8a61198ed" class="bulleted-list"><li style="list-style-type:circle"><strong>Модель учета влияния CPA на количество просмотров: </strong>модифицированная модель сравнительного анализа;</li></ul><ul id="678ea692-cf73-4974-a1e1-0d49abc4fb48" class="bulleted-list"><li style="list-style-type:circle"><strong>Модель учета влияния апрува на вывод модели: </strong>модифицированная модель факторного анализа;</li></ul></li></ul><ul id="272265f4-8635-4f4c-bd88-4d27a5163298" class="bulleted-list"><li style="list-style-type:disc"><strong>Допустимые HTTP-запросы</strong>: <strong>GET </strong>&amp; <strong>POST </strong>для URL http://host:port/, для всех остальных - <strong>GET;</strong></li></ul><ul id="8e35cad2-5658-45b9-9871-bdb496167300" class="bulleted-list"><li style="list-style-type:disc"><strong>Хранение данных: ClickHouse </strong>(для получения статистики и ее первичное предобработки) и временные файлы;</li></ul><ul id="dddb9f2f-2c09-4b23-8716-7b6ef9fb8c19" class="bulleted-list"><li style="list-style-type:disc"><strong>Скрипты запуска приложения</strong>:<ul id="16192e45-d9d6-4ca6-9e9a-8ffc475fc226" class="bulleted-list"><li style="list-style-type:circle"><strong>Windows:</strong></li></ul><pre id="bdad9b9a-4127-48e3-95bc-38d253cfb55d" class="code"><code>cd %PROJECT_PATH%
+py -m pip install virtualenv
+py -m venv init
+.\init\Script\activate
+py -m pip install -r .\requirements.txt
+waitress-serve server:app</code></pre></li></ul><ul id="2c5d327f-5b91-4750-96a2-1016fa279be8" class="bulleted-list"><li style="list-style-type:disc"><strong>Linux:</strong><ul id="f64a821b-d5b1-4e69-87c8-10e1cec66dda" class="bulleted-list"><li style="list-style-type:circle">С созданием виртуального окружения (не отличается от <a href="https://www.notion.so/CPA-311fc422705240e38b95b78060e87ebf">скрипта для Windows</a>);</li></ul><ul id="a351f30f-f94b-45cc-9d93-db2e9b1e0627" class="bulleted-list"><li style="list-style-type:circle">Без создания виртуального окружения (<strong>не рекомендуется</strong>): </li></ul><pre id="7bea8cd3-ba92-4e07-8dbd-fece13f5dbe5" class="code"><code>python -m pip install -r .\requirements.txt
+waitress-serve server:app</code></pre></li></ul><h1 id="e555c39d-abc4-4d35-b5e7-d4e1f8be5580" class="">Архитектура приложения</h1><p id="35e07ff6-fbda-48b9-b518-757a477dc679" class="">В общем случае можно сказать, что приложение содержит <strong>ML модель</strong> (собственно, прогнозирование количества показов для кампании и влияние факторов), <strong>серверную часть</strong> и <strong>UI выхода программы. </strong>Общение модулей программы происходит с помощью <strong>функций Python</strong>. Использование данного метода обусловлено тем, что приложение написано на чистом Python, что делает излишним создание <strong>RESTful API</strong> сервера.</p><p id="6d19d142-59a9-4100-93a9-265fda37044e" class="">Формирование UI происходит из <strong>HTML шаблонов</strong>, которые заполняются данными с помощью <strong>Flask. </strong>Для стилизации приложения используются <strong>CSS файлы, </strong>путь до который прокладывает <strong>Flask </strong>(для избегания проблемы несоответствия MIME-типов файлов);</p><h2 id="6558efcc-c22a-4f74-b676-52a2d200ec7b" class="">Используемые библиотеки/фреймворки</h2><p id="67847b58-7a0f-41ec-b826-22aea1f1334b" class="">Для работы различных модулей приложения необходимы следующие <strong>библиотеки </strong>(<strong>фреймворки</strong>):</p><ul id="0bba5366-2700-4e68-aa87-57d5e054b1eb" class="bulleted-list"><li style="list-style-type:disc"><strong>Flask;</strong></li></ul><ul id="96f05424-5308-42f5-b9dd-a14dc776878f" class="bulleted-list"><li style="list-style-type:disc"><strong>pandas: </strong>помогает парсить таблицы из ClickHouse, упрощает работу с данными и формирует HTML-таблицу c результатами;</li></ul><ul id="cedf2647-ca10-4543-ac6e-eccf09f70c27" class="bulleted-list"><li style="list-style-type:disc"><strong>sklearn: </strong>расчет ошибки прогноза, </li></ul><ul id="6608319f-a367-43ab-bb5c-8bedaeacb778" class="bulleted-list"><li style="list-style-type:disc"><strong>scipy: </strong>формирование функции минимизации ошибки;</li></ul><ul id="e631fa4c-2b4a-4891-94e1-467018d3df07" class="bulleted-list"><li style="list-style-type:disc"><strong>clickhouse-driver: </strong>настройка подключения к базе данных;</li></ul><ul id="938a84d0-c7e5-4a8b-bf4f-22a3d34fed44" class="bulleted-list"><li style="list-style-type:disc"><strong>python-dotenv (dotenv): </strong>управление переменными окружения серверной части;</li></ul><ul id="ecdb7c84-1388-41be-a260-bbcb46124b2e" class="bulleted-list"><li style="list-style-type:disc"><strong>numpy: </strong>упрощение работы с временным рядом и таблицам pandas;</li></ul><ul id="188f9000-a02c-42ba-9e1f-d0cdf8b0196c" class="bulleted-list"><li style="list-style-type:disc"><strong>plotly: </strong>формирование графиков для временного ряда объема показов;</li></ul><ul id="1e0d0a9c-603a-4ae7-9e4e-b7d12fce51fc" class="bulleted-list"><li style="list-style-type:disc"><strong>waitress: </strong>создание и обслуживание WSGI-сервера и обеспечение общения клиента и сервера;</li></ul><ul id="a8ea289f-7e7f-469d-bc2a-07f7d21a8813" class="bulleted-list"><li style="list-style-type:disc"><strong>requests: </strong>формирование запросов к серверу (для CI).</li></ul><p id="78c29b8d-6280-4bba-8333-772c85ccf481" class="">Стоит отметить, что в данном списке пропущены стандартные библиотеки <strong>Python. </strong>Узнать об их использовании можно в исходном коде программы, а также в комментариях и мануалах к различным классам и функциям.</p><h2 id="c4cf28b6-f0b5-4fe1-b69c-9f24a850dcc8" class="">Логические модули приложения</h2><p id="1260e823-e6ed-4a51-a363-f8a3862d45bb" class="">Ввиду наличия отдельной главы для <a href="https://www.notion.so/CPA-311fc422705240e38b95b78060e87ebf">файловой системы</a> в данной главе будет описана только <strong>логические</strong> модули приложения и их общение между собой. Данная глава необходима для формирования <a href="https://www.notion.so/CPA-311fc422705240e38b95b78060e87ebf">карты приложения</a>, которая будет представлена в дальнейшем.</p><div id="0d705398-a7e4-45db-9799-bd97ad6d46dd" class="column-list"><div id="a159ba76-cbf5-4b18-88a6-4ef4a354b0c2" style="width:50%" class="column"><ul id="8679006e-3ccd-4d43-b9b8-ad99724fa95d" class="bulleted-list"><li style="list-style-type:disc"><strong>Модуль построения и обучения модели:</strong><ul id="81f5a5f2-6c4f-42a9-a0c4-155abb3c6f46" class="bulleted-list"><li style="list-style-type:circle">Скрипт метода кросс-валидации временного ряда (<strong>cross_val.py</strong>);</li></ul><ul id="5dc6e39f-9bf6-49f6-bad5-d481d06f416c" class="bulleted-list"><li style="list-style-type:circle">Скрипт инициализации модели Хольта-Уинтерса (<strong>hw.py</strong>);</li></ul><ul id="8c06e4b0-75fc-4688-9449-8ec39f19deb7" class="bulleted-list"><li style="list-style-type:circle">Скрипт коррекции количества просмотров (по CPA) (<strong>marginCalc.py</strong>);</li></ul><ul id="cf077b49-148b-48c8-a98b-b7d667accf83" class="bulleted-list"><li style="list-style-type:circle">Скрипт отработки timeout у функции scipy.minimize() (<strong>minmizeStopper.py</strong>)</li></ul><ul id="fa343ad9-241a-4972-9ebf-d4cca263978d" class="bulleted-list"><li style="list-style-type:circle">Скрипт реализации прогнозирования (выгрузка данных, импорт и инициализация моделей, формирование графиков) (<strong>main.py</strong>).</li></ul></li></ul></div><div id="13617acc-bba1-455c-adf3-9f60c3f424ab" style="width:50%" class="column"><ul id="41e47601-81f4-4e23-9182-20ec0aaedbba" class="bulleted-list"><li style="list-style-type:disc"><strong>Модуль факторного анализа:</strong><ul id="880feb34-3f7f-4870-aac1-44a9005db011" class="bulleted-list"><li style="list-style-type:circle">Скрипт построения воронки продаж (<strong>salesFunnel.py</strong>);</li></ul><ul id="6a6fa51a-5fd4-4e7c-9bf5-4cbbcf585069" class="bulleted-list"><li style="list-style-type:circle">Библиотека построения SVG изображений (<strong>svg.py</strong>);</li></ul><ul id="c85891f8-370e-49d6-9baa-1cf7a2a24e3a" class="bulleted-list"><li style="list-style-type:circle">Скрипт реализации факторного анализа (<strong>factorAnalysis.py</strong>).</li></ul></li></ul><ul id="4512f6ec-332e-4b70-9ec8-b13a3d9c0853" class="bulleted-list"><li style="list-style-type:disc"><strong>Модуль логирования работы скрипта (loger.py);</strong></li></ul><ul id="46f0f863-f02f-4f51-8bf4-f01c5b97d20f" class="bulleted-list"><li style="list-style-type:disc"><strong>Модуль автоматического тестирования (tests.py)</strong></li></ul><ul id="2a505089-3620-47c2-bd55-354ae3ea333f" class="bulleted-list"><li style="list-style-type:disc"><strong>Git-модуль;</strong></li></ul><ul id="6c4d4ac1-0f88-418d-93f6-b7d587d0d183" class="bulleted-list"><li style="list-style-type:disc"><strong>Модуль веб-сервера (server.py).</strong></li></ul><p id="3df6604f-d891-4f58-b1d3-744ab298e971" class="">
+</p></div></div><h2 id="06d41233-ad40-486d-821d-cf5efe649d2c" class="">Карта приложения</h2><figure id="cd101c70-cf06-4b2b-9e3c-3a04a0ff93a9"><div class="source"><a href="https://excalidraw.com/#room=d3c395897eb9bc573b01,Dd7-uZcD7UNBgo_sltO7_Q">https://excalidraw.com/#room=d3c395897eb9bc573b01,Dd7-uZcD7UNBgo_sltO7_Q</a></div></figure><h1 id="8b1651fd-890f-44b8-813e-de540cfd639b" class="">Статистические модели приложения</h1><p id="bde908fe-65d9-4746-ab4b-5d6a8729ee69" class="">Как было описано <a href="https://www.notion.so/CPA-311fc422705240e38b95b78060e87ebf">выше</a>, в данном приложении было использовано <a href="https://www.notion.so/CPA-311fc422705240e38b95b78060e87ebf">3 модели</a>, которые каким-либо образом влияют на конечные <a href="https://www.notion.so/CPA-311fc422705240e38b95b78060e87ebf">метрики</a>, которые и являются выходом программы. При этом стоит отметить, что каждая из моделей влияет на свой <strong>уровень расчета.</strong> По отдельности данные модели не имеют практической значимости, так как не смогут в своей полноте дать верный результат для расчета. Исключением является <a href="https://www.notion.so/CPA-311fc422705240e38b95b78060e87ebf">модель прогнозирования количества просмотров</a>: если CPA и аппрув не были получены от пользователя, то будет работать исключительно данная модель. </p><h2 id="ca910cea-d02a-4bd2-bb96-75daac7c375e" class="">Рассчитываемые моделями метрики</h2><div id="31bcaedb-61c5-49e9-b4d6-563fd3715be8" class="column-list"><div id="a7008766-fef5-4403-a835-82cb79233d68" style="width:50%" class="column"><p id="c4bd31ee-9636-4d29-9860-30121592c504" class="">К данным метрикам относятся:</p><ul id="35af2422-da0e-4db3-baf6-2bed1907cc34" class="bulleted-list"><li style="list-style-type:disc">Количество <strong>показов</strong>;</li></ul><ul id="cf10f1d3-3d6e-463d-a3ef-8ca09f3314c2" class="bulleted-list"><li style="list-style-type:disc">Количество <strong>кликов</strong>;</li></ul><ul id="f4f49d35-025e-4f2b-99f1-4cf596af65ae" class="bulleted-list"><li style="list-style-type:disc">Количество <strong>лидов</strong>;</li></ul><ul id="092603bf-f353-48da-a243-2f896111ffd3" class="bulleted-list"><li style="list-style-type:disc">Количество <strong>подтвержденных лидов</strong>.</li></ul></div><div id="6ac39d1d-e09c-4149-8ead-c94a6b8efdf2" style="width:50%" class="column"><p id="fe211000-32ca-4ac1-bc08-adaaa59ebd3a" class="">Природа данных метрик такова, что из 1 <strong>любой </strong>метрики представляется возможным вычислить все остальные метрики, если известны необходимые коэффициенты. Представим взаимосвязь данных метрик с помощью таблицы:</p></div></div><table id="76682108-0a06-4d2f-acee-7f7d954f3943" class="simple-table"><thead class="simple-table-header"><tr id="75ef7bf1-63a8-43ca-8939-3704412161f0"><th id="_:}}" class="simple-table-header-color simple-table-header">Метрика 1 ⇒ Метрика 2</th><th id="{_u&lt;" class="simple-table-header-color simple-table-header" style="width:144.109375px">Показы</th><th id="G?XU" class="simple-table-header-color simple-table-header">Клики</th><th id="Xowu" class="simple-table-header-color simple-table-header">Лиды</th><th id="tVN&lt;" class="simple-table-header-color simple-table-header">Подтвержденные лиды</th></tr></thead><tbody><tr id="5496b33d-7b11-40a6-a63e-ddd512493cec"><th id="_:}}" class="simple-table-header-color simple-table-header">Показы</th><td id="{_u&lt;" class="" style="width:144.109375px">S</td><td id="G?XU" class="">S*CTR</td><td id="Xowu" class="">S*CTR*CR</td><td id="tVN&lt;" class="">S*CTR*CR*approve</td></tr><tr id="d622f62a-c782-4044-9b89-701f31a96102"><th id="_:}}" class="simple-table-header-color simple-table-header">Клики</th><td id="{_u&lt;" class="" style="width:144.109375px">S/CTR</td><td id="G?XU" class="">C</td><td id="Xowu" class="">C*CR</td><td id="tVN&lt;" class="">C*CR*approve</td></tr><tr id="5224bbd3-845c-4f20-89ba-8d0169096ecb"><th id="_:}}" class="simple-table-header-color simple-table-header">Лиды</th><td id="{_u&lt;" class="" style="width:144.109375px">L/CTR/CR</td><td id="G?XU" class="">L/CR</td><td id="Xowu" class="">L</td><td id="tVN&lt;" class="">L*CL</td></tr><tr id="beec7e03-9809-4aae-9a78-cd5ba4e64c26"><th id="_:}}" class="simple-table-header-color simple-table-header">Подтвержденные лиды</th><td id="{_u&lt;" class="" style="width:144.109375px">CL/CTR/CR/approve</td><td id="G?XU" class="">CL/CR/approve</td><td id="Xowu" class="">CL/approve</td><td id="tVN&lt;" class="">CL</td></tr></tbody></table><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="a94e5c27-48a9-4eee-9688-8933b914a34b"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%">В данной таблице используются следующие обозначения:<ul id="33186590-c5f6-43a8-98f0-a2840c31cf23" class="bulleted-list"><li style="list-style-type:disc">S - показы;</li></ul><ul id="d2deab34-8d5c-4598-8336-dc2f28f97ef6" class="bulleted-list"><li style="list-style-type:disc">C - клики;</li></ul><ul id="63e248ae-75b2-4520-bfc7-7b90e7d0c503" class="bulleted-list"><li style="list-style-type:disc">L - лиды;</li></ul><ul id="76ecf74c-d612-422f-81ea-36838b7fbbb0" class="bulleted-list"><li style="list-style-type:disc">CL - подтвержденные лиды</li></ul></div></figure><div id="8679a9da-f7ec-4104-bedb-8ec505aca6f3" class="column-list"><div id="fdf0d190-6d11-4c3f-9062-4f69421f8938" style="width:33.333333333333336%" class="column"><figure id="524c5a6e-0d67-478a-bb84-fc5f79366e50" class="equation"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><div class="equation-container"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>C</mi><mi>T</mi><mi>R</mi><mo>=</mo><mfrac><mi>C</mi><mi>S</mi></mfrac></mrow><annotation encoding="application/x-tex">CTR=\frac{C}{S}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">CTR</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.04633em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05764em;">S</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div></figure></div><div id="a6b44679-bead-48e0-be2f-2d5239ed5f1f" style="width:33.33333333333333%" class="column"><figure id="78f669dd-958d-4b95-ac72-87c3e47f6c3a" class="equation"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><div class="equation-container"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>C</mi><mi>R</mi><mo>=</mo><mfrac><mi>C</mi><mi>L</mi></mfrac></mrow><annotation encoding="application/x-tex">CR=\frac{C}{L}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">CR</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.04633em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">L</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div></figure></div><div id="59412556-fb47-4a3b-8e7e-972e5943037b" style="width:33.333333333333336%" class="column"><figure id="da8cd1f3-bae7-492e-8876-3ee62d93e578" class="equation"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><div class="equation-container"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>a</mi><mi>p</mi><mi>p</mi><mi>r</mi><mi>o</mi><mi>v</mi><mi>e</mi><mo>=</mo><mfrac><mrow><mi>C</mi><mi>L</mi></mrow><mi>L</mi></mfrac></mrow><annotation encoding="application/x-tex">approve=\frac{CL}{L}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathnormal">a</span><span class="mord mathnormal">pp</span><span class="mord mathnormal">ro</span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.04633em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">L</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal">L</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div></figure></div></div><div id="fd6adc95-53d5-4b33-a233-4f4ca53f8aab" class="column-list"><div id="91fe3b77-1784-4ac4-ac6b-2413544a4b94" style="width:50%" class="column"><p id="89b0092b-e114-48a5-81eb-50f08d782c42" class="">Соответственно, для показов определенной формулы не существует. Это объясняет самостоятельность модели прогнозирования показов и зависимость других моделей данного приложения.</p></div><div id="33c8d0fd-5910-4aa9-bb6e-031c7a32516a" style="width:50%" class="column"><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="deb335be-3b2f-4dc6-8b82-16248c9a8491"><div style="font-size:1.5em"><span class="icon">ℹ️</span></div><div style="width:100%">Стоит обратить внимание, что данная таблица схожа с треугольной матрицей, что позволяет говорить о <strong>линейности </strong>данных преобразований.</div></figure></div></div><h2 id="e1c811b5-f350-48f1-87ae-5b5e1231ad37" class="">Модель прогнозирования количества просмотров</h2><h3 id="6cdd975a-1e98-49d1-a606-646ed7eb4ea5" class="">Математическое описание модели и обоснование ее выбора</h3><p id="c9cd0587-0d7f-453f-8bfc-84f1d054cb10" class="">Данная модель несет центральное значение в приложении. В случае, если прогноз по данной модели будет ошибочным, то это отразится на <strong>всех </strong>метриках в выходе программы. Следовательно, точность данной модели является <strong>критично важной. </strong>В сравнении результатов анализа были использованы:</p><div id="920c3958-a814-4070-a43b-24f9c6f5bbb1" class="column-list"><div id="6a60f3c7-e2d8-4721-a1a3-3c50541e0b7b" style="width:50%" class="column"><ul id="525adade-0e45-49ff-96c4-a3b6172d1e95" class="bulleted-list"><li style="list-style-type:disc"><strong>Линейная регрессия</strong> с параметрами:<ul id="f79bbef7-e958-461e-8529-3991598b7e60" class="bulleted-list"><li style="list-style-type:circle">shows, CPA (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><msup><mi>R</mi><mn>2</mn></msup><mo stretchy="true">‾</mo></mover><mo>=</mo><mn>85</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">\overline{R^2} = 85\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.940108em;vertical-align:0em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.940108em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.860108em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.80556em;vertical-align:-0.05556em;"></span><span class="mord">85%</span></span></span></span></span><span>﻿</span></span>);</li></ul><ul id="cfe3309b-00d5-4c64-8d23-16e585ca3889" class="bulleted-list"><li style="list-style-type:circle">shows, CPA, EPC (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><msup><mi>R</mi><mn>2</mn></msup><mo stretchy="true">‾</mo></mover><mo>=</mo><mn>63</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">\overline{R^2} = 63\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.940108em;vertical-align:0em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.940108em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.860108em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.80556em;vertical-align:-0.05556em;"></span><span class="mord">63%</span></span></span></span></span><span>﻿</span></span>);</li></ul><ul id="a6bec216-987f-4b36-8816-dacd0210d014" class="bulleted-list"><li style="list-style-type:circle">shows, CPA, eCPM (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><msup><mi>R</mi><mn>2</mn></msup><mo stretchy="true">‾</mo></mover><mo>=</mo><mn>71</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">\overline{R^2} = 71\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.940108em;vertical-align:0em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.940108em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.860108em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.80556em;vertical-align:-0.05556em;"></span><span class="mord">71%</span></span></span></span></span><span>﻿</span></span>);</li></ul><ul id="41d3ff4e-ffe7-458e-9d23-d20243d0233a" class="bulleted-list"><li style="list-style-type:circle">shows, eCPM  (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><msup><mi>R</mi><mn>2</mn></msup><mo stretchy="true">‾</mo></mover><mo>=</mo><mn>68</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">\overline{R^2} = 68\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.940108em;vertical-align:0em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.940108em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.860108em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.80556em;vertical-align:-0.05556em;"></span><span class="mord">68%</span></span></span></span></span><span>﻿</span></span>).</li></ul></li></ul><ul id="53640356-d955-4a2f-95bb-cb3217460208" class="bulleted-list"><li style="list-style-type:disc">Прогнозирование количества показов по предыдущим значением данной метрики (прогнозирование <strong>временного ряда</strong>):<ul id="ce8f7f02-c763-43ad-beb2-76ce470f0f16" class="bulleted-list"><li style="list-style-type:circle">AR (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><msup><mi>R</mi><mn>2</mn></msup><mo stretchy="true">‾</mo></mover><mo>=</mo><mn>91</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">\overline{R^2} = 91\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.940108em;vertical-align:0em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.940108em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.860108em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.80556em;vertical-align:-0.05556em;"></span><span class="mord">91%</span></span></span></span></span><span>﻿</span></span>);</li></ul><ul id="fc7c5421-3347-4166-8abb-e4ca7e2fbc2a" class="bulleted-list"><li style="list-style-type:circle">ARMA (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><msup><mi>R</mi><mn>2</mn></msup><mo stretchy="true">‾</mo></mover><mo>=</mo><mn>95</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">\overline{R^2} = 95\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.940108em;vertical-align:0em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.940108em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.860108em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.80556em;vertical-align:-0.05556em;"></span><span class="mord">95%</span></span></span></span></span><span>﻿</span></span>);</li></ul><ul id="51d7ba06-5282-44eb-904d-a3e2d6e11fcf" class="bulleted-list"><li style="list-style-type:circle">Holt-Winters (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><msup><mi>R</mi><mn>2</mn></msup><mo stretchy="true">‾</mo></mover><mo>=</mo><mn>99.9</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">\overline{R^2} = 99.9\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.940108em;vertical-align:0em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.940108em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.860108em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.80556em;vertical-align:-0.05556em;"></span><span class="mord">99.9%</span></span></span></span></span><span>﻿</span></span>).</li></ul></li></ul><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="dca45ea5-97de-4da2-b700-594f75be5c78"><div style="font-size:1.5em"><span class="icon">ℹ️</span></div><div style="width:100%"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><msup><mi>R</mi><mn>2</mn></msup><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">\overline{R^2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.940108em;vertical-align:0em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.940108em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.860108em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> - средний объем объясненной дисперсии по разным кампаниям.</div></figure><p id="954899d1-a894-4c0c-99a2-12c626c324de" class="">
+</p></div><div id="bea99cd5-a06d-4c23-abe4-16424fd70559" style="width:50%" class="column"><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="28c02749-2a64-4815-ad7c-a272806f4683"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%">Неудачный опыт линейной регрессии можно объяснить следующими причинами:<ul id="d865f35a-dedd-4c90-b5b5-3fc990a2b4dc" class="bulleted-list"><li style="list-style-type:disc">Теряется <a href="https://www.notion.so/CPA-311fc422705240e38b95b78060e87ebf">линейное преобразование</a>, лежащее в основе основных <a href="https://www.notion.so/CPA-311fc422705240e38b95b78060e87ebf">метрик</a>;</li></ul><ul id="8cd50381-d697-4b3c-babd-71c0b88c91cf" class="bulleted-list"><li style="list-style-type:disc">Параметры линейной регрессии хорошо объясняют природу изменения показателей на уровне <strong>рекламного объявления </strong>(<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><msup><mi>R</mi><mn>2</mn></msup><mo stretchy="true">‾</mo></mover><mo>=</mo><mspace linebreak="newline"></mspace><mn>98</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">\overline{R^2} = \newline98\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.940108em;vertical-align:0em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.940108em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.860108em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span></span><span class="mspace newline"></span><span class="base"><span class="strut" style="height:0.80556em;vertical-align:-0.05556em;"></span><span class="mord">98%</span></span></span></span></span><span>﻿</span></span>), однако на уровне <strong>кампании</strong>, из-за разнонаправленности изменений рекламных объявлений данная зависимость теряется.</li></ul></div></figure></div></div><p id="5265418b-68b1-4df0-bf4e-6738932c8c1b" class="">Также были опробованы и другие модели, точность которых достаточно тяжело оценить с использованием <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><msup><mi>R</mi><mn>2</mn></msup><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">\overline{R^2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.940108em;vertical-align:0em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.940108em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.860108em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> : генетические алгоритмы, LRNN и другие.</p><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="2a5d6282-e87f-43e6-827d-4e6e6a055ed7"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%">Модель <strong>Хольта-Уинтерса</strong> (<strong>тройное экспоненциальное сглаживание</strong>) <strong> - </strong>модель, в основе которой лежит предположение о том, что временной ряд состоит из 3 параметров:<ul id="41c538c0-b5a8-4b4b-8b34-f34e8f442c23" class="bulleted-list"><li style="list-style-type:disc">Предыдущее значение наблюдаемой величины (параметр <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi></mrow><annotation encoding="application/x-tex">\alpha</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span></span></span></span></span><span>﻿</span></span>);</li></ul><ul id="b45de051-ba07-49ba-b523-b779514bbd67" class="bulleted-list"><li style="list-style-type:disc">Экспоненциальный тренд (параметр <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi></mrow><annotation encoding="application/x-tex">\beta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span></span></span></span></span><span>﻿</span></span>);</li></ul><ul id="7270a099-a864-4efe-a485-2cfe13b2e639" class="bulleted-list"><li style="list-style-type:disc">Сезонность наблюдаемой величины (параметр <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi></mrow><annotation encoding="application/x-tex">\gamma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span></span></span></span></span><span>﻿</span></span>).</li></ul><p id="5d98dcdc-b34f-4e8d-bd56-a19d7ff9e0fc" class="">В зависимости от того как влияет последняя переменная выделяют <strong>аддитивную </strong>(<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi></mrow><annotation encoding="application/x-tex">\gamma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span></span></span></span></span><span>﻿</span></span> прибавляется к остальным параметрам) и <strong>мультипликативную </strong>(<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi></mrow><annotation encoding="application/x-tex">\gamma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span></span></span></span></span><span>﻿</span></span> умножается на остальные параметры) модель Хольта-Уинтерса.</p></div></figure><div id="118f3c97-0090-45c0-9b28-1ba42903cde0" class="column-list"><div id="f6eb7906-caa1-4203-8941-125b8e4b256c" style="width:50%" class="column"><p id="08098374-4526-4f35-9b70-13906c98b731" class="">Помимо временного ряда модель обязательно принимает на вход параметры:</p><ul id="c8af3bb0-365b-4bf4-adc1-a03ede4b3efb" class="bulleted-list"><li style="list-style-type:disc"><strong>Длина сезона (slen)</strong> - время, за которое, предположительно, временной ряд <strong>зациклится</strong>, то есть будет максимально равен предыдущему такому периоду. Данный период в модели фиксирован и составляет 24 часа;</li></ul><ul id="cbf09922-4fc9-4507-a4d3-ecfde525a1d5" class="bulleted-list"><li style="list-style-type:disc"><strong>Базисный вектор (x) - </strong>вектор параметров модели, которые будет подвержен обучению (обычно содержит предположения о временном ряде);</li></ul><ul id="efb27cbf-e1d2-4880-9070-95780455e204" class="bulleted-list"><li style="list-style-type:disc"><strong>Длина временного ряда - </strong>количество точек во временном ряду.</li></ul></div><div id="5dc51602-9183-468a-b396-65f633f6c6d1" style="width:50%" class="column"><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="c9cc9429-dcb2-42ff-b018-ee6e6cd55e7f"><div style="font-size:1.5em"><span class="icon">❗</span></div><div style="width:100%">Стоит обратить внимание на то, что если временной ряд состоит менее чем из 24 точек (с момента запуска кампании прошло менее суток), то модель не сможет посчитать сезонность, что приведет к <strong>критической ошибки</strong> и вылету программы. Одним из вариантов решения данной проблемы является снижение длины сезона до необходимого уровня (однако стоит отметить, что модель впринципе не сможет достоверно прогнозировать в случае, если период настолько мал).</div></figure></div></div><h3 id="6710c553-c148-4250-8838-33647f9baef7" class="">Обучение модели Хольта-Уинтерса</h3><div id="9e1c4f1c-e417-4a49-b520-18882a53af51" class="column-list"><div id="ada0d8dd-5221-4ec4-a328-ee7293116c6f" style="width:50%" class="column"><p id="513885cb-9852-40c3-bda5-da7ed9c52b9d" class="">Выше было сказано, что одним из входных параметров модели является <a href="https://www.notion.so/CPA-311fc422705240e38b95b78060e87ebf"><strong>базисный вектор</strong></a><strong>. </strong>По своей сути данный вектор представляет из себя 3 числа, которые соответствуют параметрам <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo separator="true">,</mo><mi>β</mi><mo separator="true">,</mo><mi>γ</mi></mrow><annotation encoding="application/x-tex">\alpha, \beta, \gamma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span></span></span></span></span><span>﻿</span></span> соответственно. Так как нам эти параметры неизвестны, то помимо конструирования данной модели необходимо также данную модель <strong>обучить</strong>. Для задачи обучения данной модели был выбран метод <strong>кросс-валидации</strong>, как современный, но в то же время надежный метод машинного обучения.</p><p id="0de7db72-cf5b-43c2-99eb-76d2bd1a11b3" class="">Помимо этого кросс-валидация эффективна тем, что ее <strong>оценка,</strong> т. е. средняя <strong>ошибка прогноза</strong> по нескольким проходам интерпретируема как <strong>вероятность ошибки </strong>в ее класическом понимании (т. е. удовлетворяет требованиям <a href="https://ru.wikipedia.org/wiki/%D0%90%D0%BA%D1%81%D0%B8%D0%BE%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0_%D0%9A%D0%BE%D0%BB%D0%BC%D0%BE%D0%B3%D0%BE%D1%80%D0%BE%D0%B2%D0%B0">аксиоматики Колмагорова</a>).</p><p id="ee834402-0daa-4dee-8270-cf3cee1645af" class="">Об кросс-валидации можно говорить достаточно долго, что выходит за рамки документации. <a href="http://www.machinelearning.ru/wiki/index.php?title=%D0%9A%D1%80%D0%BE%D1%81%D1%81-%D0%B2%D0%B0%D0%BB%D0%B8%D0%B4%D0%B0%D1%86%D0%B8%D1%8F">Здесь</a> можно подробнее ознакомится с данным методом обучения и найти ответы на интересующие вопросы.</p></div><div id="a5c02fbe-dc0c-49d3-a59c-83480550878e" style="width:50%" class="column"><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="bd061b38-ccc0-4670-b4ee-78a541a14ee0"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%">Для оптимизации работы алгоритма в нем используется не 1 базисный вектор, а 8 различных векторов, которые расположены в порядки их возможной встречаемости:<ul id="b688ffb0-3079-46b8-8cc6-ec9563ad1e6a" class="bulleted-list"><li style="list-style-type:disc"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>0</mn><mo separator="true">,</mo><mi>β</mi><mo>=</mo><mn>0</mn><mo separator="true">,</mo><mi>γ</mi><mo>=</mo><mn>0</mn><mo separator="true">;</mo></mrow><annotation encoding="application/x-tex">\alpha=0, \beta=0, \gamma=0;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mpunct">;</span></span></span></span></span><span>﻿</span></span></li></ul><ul id="3ebdec40-21e2-4572-afbf-6d1b5998d510" class="bulleted-list"><li style="list-style-type:disc"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>0</mn><mo separator="true">,</mo><mi>β</mi><mo>=</mo><mn>0</mn><mo separator="true">,</mo><mi>γ</mi><mo>=</mo><mn>1</mn><mo separator="true">;</mo></mrow><annotation encoding="application/x-tex">\alpha=0, \beta=0, \gamma=1;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">1</span><span class="mpunct">;</span></span></span></span></span><span>﻿</span></span></li></ul><ul id="07f4f068-3877-4611-9052-9d969f96effc" class="bulleted-list"><li style="list-style-type:disc"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>1</mn><mo separator="true">,</mo><mi>β</mi><mo>=</mo><mn>0</mn><mo separator="true">,</mo><mi>γ</mi><mo>=</mo><mn>0</mn><mo separator="true">;</mo></mrow><annotation encoding="application/x-tex">\alpha=1, \beta=0, \gamma=0;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mpunct">;</span></span></span></span></span><span>﻿</span></span></li></ul><ul id="0d92cc64-bb40-4dc7-8c89-89076f5c5620" class="bulleted-list"><li style="list-style-type:disc"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>0</mn><mo separator="true">,</mo><mi>β</mi><mo>=</mo><mn>1</mn><mo separator="true">,</mo><mi>γ</mi><mo>=</mo><mn>0</mn><mo separator="true">;</mo></mrow><annotation encoding="application/x-tex">\alpha=0, \beta=1, \gamma=0;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mpunct">;</span></span></span></span></span><span>﻿</span></span></li></ul><ul id="78dbd71a-7584-439f-9dad-dcd50d4d0c4d" class="bulleted-list"><li style="list-style-type:disc"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>0</mn><mo separator="true">,</mo><mi>β</mi><mo>=</mo><mn>1</mn><mo separator="true">,</mo><mi>γ</mi><mo>=</mo><mn>1</mn><mo separator="true">;</mo></mrow><annotation encoding="application/x-tex">\alpha=0, \beta=1, \gamma=1;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">1</span><span class="mpunct">;</span></span></span></span></span><span>﻿</span></span></li></ul><ul id="a4eae9e8-0ff3-4947-9af5-0cc9f7f34914" class="bulleted-list"><li style="list-style-type:disc"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>1</mn><mo separator="true">,</mo><mi>β</mi><mo>=</mo><mn>0</mn><mo separator="true">,</mo><mi>γ</mi><mo>=</mo><mn>1</mn><mo separator="true">;</mo></mrow><annotation encoding="application/x-tex">\alpha=1, \beta=0, \gamma=1;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">1</span><span class="mpunct">;</span></span></span></span></span><span>﻿</span></span></li></ul><ul id="1db99b2b-a438-4d56-9c68-a7bb88c5d61b" class="bulleted-list"><li style="list-style-type:disc"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>1</mn><mo separator="true">,</mo><mi>β</mi><mo>=</mo><mn>1</mn><mo separator="true">,</mo><mi>γ</mi><mo>=</mo><mn>0</mn><mo separator="true">;</mo></mrow><annotation encoding="application/x-tex">\alpha=1, \beta=1, \gamma=0;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mpunct">;</span></span></span></span></span><span>﻿</span></span></li></ul><ul id="dad3c92e-f95d-4fdd-9175-f2a9acfc9910" class="bulleted-list"><li style="list-style-type:disc"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.2/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>1</mn><mo separator="true">,</mo><mi>β</mi><mo>=</mo><mn>1</mn><mo separator="true">,</mo><mi>γ</mi><mo>=</mo><mn>1.</mn></mrow><annotation encoding="application/x-tex">\alpha=1, \beta=1, \gamma=1.</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1.</span></span></span></span></span><span>﻿</span></span></li></ul><p id="936d2668-1be2-4b37-b8d0-aa74a5c4b35c" class="">Отметим, что вектора 1 и 8 очень близки по своей сути, однако вектор 1 сколнен найти локальный минимум, который <strong>расположен ближе к началу координат</strong>, тогда как вектор 8 - <strong>наиболее удаленный от него.</strong></p></div></figure></div></div><h2 id="b317e9bd-2c5b-4981-83bc-e5d9efefa03b" class="">Модель влияния CPA на количество просмотров</h2><p id="f7a40447-91ec-41a6-87b2-b52df6b81e5a" class="">
+</p><h2 id="1081be94-b868-4274-a8ec-ec9fb1272ba2" class="">Модель влияния апрува на вывод модели</h2><h1 id="0a424d55-bd10-4582-8cff-fc08a803f052" class="">Серверная часть</h1><h2 id="488592a5-ee47-4f32-a3a7-d9c45f9bc232" class="">Файловая система приложения</h2><ul id="4af04a05-7d23-4fdc-89f4-bf3cd77dc3b2" class="bulleted-list"><li style="list-style-type:disc"></li></ul><h2 id="3bfbcfc5-1466-48cf-bb63-525e4c186064" class="">Маршруты и запросы серверной части</h2><h2 id="085f2468-4b6f-44df-aa65-6d1310f9eacc" class="">Переменные окружения</h2><h2 id="016cc0ae-7b20-47e7-87f0-81e45a598210" class="">Временные файлы и их удаление</h2><h2 id="f2430b3a-ecf9-45c6-815a-b8a04eb665a0" class="">Вспомогательные файлы</h2><h1 id="74330d4c-7543-48d6-80a6-c64bb57e9efa" class="">UI приложения</h1><h2 id="8dbbcb83-7066-4df2-9ea2-a524b71fbcf9" class="">Отображаемые страницы приложения</h2><h2 id="03833aab-fa20-4375-8e1a-512261b99a45" class="">Стили приложения</h2><h2 id="0c1710f3-80d0-436b-8737-2eb7e4379dfd" class="">Отображение сторонних файлов (графиков, таблиц и прочее)</h2><h1 id="7992c801-9a0c-4ff5-8ef6-9e8d27eea41c" class="">Необходимые доработки.</h1><ul id="b5b43084-986d-4cf7-8873-5e157ed90b20" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Подключение и настройка обратного proxy-сервера (<strong>nginx </strong>или <strong>apache</strong>);</span></li></ul><ul id="b9b95762-d173-4dcf-9b77-02aeac3371ca" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Факторный анализ: настройка корректного отображения;</span></li></ul><ul id="2ce9cbcd-db36-450c-a495-aea3925d705a" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Оформление кода, добавление коментариев;</span></li></ul><ul id="abac2fca-e247-4927-acc4-429854d55714" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Автоматическое подключение к VPN (исправить, написать для Linux);</span></li></ul><ul id="5a226532-3cff-41e4-89ec-0597d8a8f658" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Добавление автоматических тестов.</span></li></ul><p id="f3c57711-7e49-4de7-b8e2-7c66fc8ec53c" class="">
+</p><p id="c10b4368-456c-40ab-be48-7900677f6b77" class="">
+</p></div></article></body></html>

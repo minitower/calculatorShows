@@ -7,6 +7,7 @@ from clickhouse_driver.errors import SocketTimeoutError
 # Personal libs
 from model.fullCalc import *
 from services.cleaner import envCleaner
+from services.loger import Loger
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -29,9 +30,12 @@ if bool(os.environ.get('SERVER_PLOT_CLEAN')):
 if bool(os.environ.get('SERVER_TABLE_CLEAN')):
     envCleaner('table')
 
+# Init ClickHouse driver variable
 host = os.environ.get("HOST")
 user = os.environ.get("CLICKHOUSE_USERNAME")
 password = os.environ.get("PASSWORD")
+#Init Loger class
+loger = Loger()
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -47,7 +51,6 @@ def fullCalculator():
         else:
             campaignId = request.args.get('campaignId')
         campaignName = None
-        print(request.args.get('pred_n'), request.form, request.args)
         try:
             int(campaignId)
         except ValueError:
@@ -225,6 +228,8 @@ def fullCalculator():
                                                 arrPathShows=arrPathShows, arrPathClicks=arrPathClicks,
                                                 arrPathPost=arrPathPost, arrPathConfPost=arrPathConfPost))
             else:
+                request.accept_charsets
+                request.accept_encodings
                 res=make_response(jsonify({
                             'input_data': {
                                 'campaign': resultDict['campaign'], 
@@ -280,6 +285,26 @@ def fullCalculator():
         return res
 
     elif request.method == 'GET':
+        print(request.accept_charsets)
+        print(request.accept_encodings)
+        print(request.accept_languages)
+        print(request.accept_mimetypes)
+        print(request.access_route)
+        print(request.args)
+        print(request.authorization)
+        print(request.base_url)
+        print(request.blueprint)
+        print(request.cache_control)
+        print(request.cookies)
+        print(request.data)
+        print(request.content_length)
+        print(request.content_md5)
+        print(request.content_encoding)
+        print(request.endpoint)
+        print(request.files)
+        print(request.environ)
+        print(request.date)
+        print(request.form)
         if os.path.exists('./resultsBin/fullCalcListCam.pickle'):
             with open('./resultsBin/fullCalcListCam.pickle', 'rb') as f:
                 fullCalcDict = pickle.load(f)
@@ -292,6 +317,7 @@ def fullCalculator():
 
 @app.route('/full_results/<campaigns>', methods=['GET'])
 def fullLastResult(campaigns):
+    loger.requestMessage(req=request)
     try:
         with open(f'./resultsBin/full_{campaigns}.pickle', 'rb') as f:
             dictArgs = pickle.load(f)
@@ -343,6 +369,7 @@ def fullLastResult(campaigns):
 
 @app.route('/not_found/<campaign>', methods=['GET'])
 def notFound(campaign):
+    loger.requestMessage(req=request)
     return render_template('false_result.html',
                            campaign=campaign,
                            backlink=url_for("fullCalculator"))
@@ -350,11 +377,13 @@ def notFound(campaign):
 
 @app.route('/info', methods=['GET'])
 def info():
+    loger.requestMessage(req=request)
     return render_template('info.html')
 
 
 @app.route('/lastResult', methods=['GET'])
 def listResult():
+    loger.requestMessage(req=request)
     if os.path.exists('./resultsBin/fullCalcListCam.pickle'):
         with open('./resultsBin/fullCalcListCam.pickle', 'rb') as f:
             fullCalcDict = pickle.load(f)
@@ -367,36 +396,42 @@ def listResult():
 
 @app.route("/plot/<campaign>", methods=['GET'])
 def plot(campaign):
+    loger.requestMessage(req=request)
     plotName = f'{campaign}.html'
     return render_template(f'plots/plot_{plotName}')
 
 
 @app.route("/table/<campaign>", methods=['GET'])
 def table(campaign):
+    loger.requestMessage(req=request)
     tableName = f'{campaign}.html'
     return render_template(f'tables/table_{tableName}')
 
 
 @app.route("/full_plot_shows/<campaign>", methods=['GET'])
 def fullPlot(campaign):
+    loger.requestMessage(req=request)
     plotName = f'{campaign}.html'
     return render_template(f'plots/fullPlot_shows_{plotName}')
 
 
 @app.route("/factor_analysis/<campaign>", methods=['GET'])
 def factorAnalysis(campaign):
+    loger.requestMessage(req=request)
     camName = f'{campaign}.html'
     return render_template(f'factorAnalysis/factor_{camName}')
 
 
 @app.route("/full_table/<campaign>", methods=['GET'])
 def fullTable(campaign):
+    loger.requestMessage(req=request)
     tableName = f'{campaign}.html'
     return render_template(f'tables/fullTable_{tableName}')
 
 
 @app.route("/value_<value>_not_found", methods=['GET'])
 def valNotFound(value):
+    loger.requestMessage(req=request)
     return render_template('value_not_found.html',
                            value=value,
                            backlink=url_for('fullCalculator'))

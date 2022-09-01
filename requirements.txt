@@ -6,7 +6,5 @@ python-dotenv
 numpy
 plotly
 flask
-openvpn-api
 waitress
-bs4
 requests

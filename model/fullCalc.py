@@ -1,37 +1,6 @@
 # Project script
 from model.main import *
 
-
-def loadCheckData(host, user, password,
-                  bid, ecpm, step):
-    campaignsPriority = ['RU', 'KZ', 'UA', 'BY']
-    campaigns = None
-
-    with open('model/queries/q2.sql', 'r') as f:
-        q = f.read()
-    q = q.replace('${BID}', str(bid))
-
-    sqlCH = ch.Client(host=host,
-                      user=user,
-                      password=password)
-
-    df = pd.DataFrame(sqlCH.execute(q))
-    df.columns = ['campaigns', 'adv_id', 'shows',
-                  'postbacks', 'ecpm']
-    df['diff'] = abs(df['ecpm'] - ecpm)
-    df['geo'] = df['campaigns'].apply(lambda x: x[:2])
-    df_diff = df.loc[df['diff'] == df['diff'].min()]
-    for i in campaignsPriority:
-        check = df_diff.loc[df_diff['geo'] == i]
-        if not check.empty:
-            campaigns = check['campaigns'].values[0 + step]
-            break
-    if campaigns is None:
-        campaigns = df_diff.sort_values(by='shows',
-                                        ascending=False)['campaigns'].values[0 + step]
-    return campaigns
-
-
 def resultParser(result):
     return dict(accurancy=result[0], mean=result[1],
                 std=result[2], median=result[3],

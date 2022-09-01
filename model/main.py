@@ -137,7 +137,7 @@ def main(campaign, pred_n, minAccurancy, custom_bid,
     median=df_daily['shows'].median()
     # Optimise Holt-Winters vector
     xArr = [[0,0,0], [0,0,1], [1,0,0], 
-            [0,0,1], [0,1,1], [1,0,1], 
+            [0,1,0], [0,1,1], [1,0,1], 
             [1,1,0], [1,1,1]]
     n=0
     accurancy=0
