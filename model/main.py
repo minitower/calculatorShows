@@ -6,7 +6,8 @@ from model.hw import HoltWinters
 from services.minmizeStopper import *
 from model.cross_val import CVScore
 from model.marginCalc import *
-
+from services.loger import Loger
+loger=Loger()
 
 def loadData(host, user, password, campaign_name):
     with open('model/queries/q.sql', 'r') as f:
@@ -115,6 +116,7 @@ def main(campaign, pred_n, minAccurancy, custom_bid,
     #df = loadDataLocal('./test.csv', campaign)
     df = loadData(host=host, user=user, password=password,
                     campaign_name=campaign)
+    loger.tableLoad()
     df = CPASimulator(campaign, custom_bid).calcGrow(df)
     if len(df) <= 200:
         df2 = pd.DataFrame(pd.to_datetime(pd.date_range(start=df['datetime'].values[0], 
@@ -135,6 +137,7 @@ def main(campaign, pred_n, minAccurancy, custom_bid,
     mean=df_daily['shows'].mean()
     std=df_daily['shows'].std()
     median=df_daily['shows'].median()
+    loger.mainStatCalc({'mean':mean, 'std':std, 'median':median})
     # Optimise Holt-Winters vector
     xArr = [[0,0,0], [0,0,1], [1,0,0], 
             [0,1,0], [0,1,1], [1,0,1], 
@@ -150,6 +153,7 @@ def main(campaign, pred_n, minAccurancy, custom_bid,
                     beta=='err' and \
                     gamma=='err':
             continue
+        loger.optFind(opt.x)
         # Predict value for custom data
         hw = HWPredict(df, opt, 0)
         check = validation(df, hw)
@@ -173,6 +177,7 @@ def main(campaign, pred_n, minAccurancy, custom_bid,
 
 def mainAll(campaign, pred_n, minAccurancy, ctr, cr, approve, 
                     custom_approve, custom_bid):
+    loger.mainStart()
     d = main(campaign, pred_n, minAccurancy, custom_bid)
     df_save = d.pop(-1)
     df_save['shows_forecast'] = df_save['forecast'].astype(int).copy()
@@ -201,6 +206,7 @@ def mainAll(campaign, pred_n, minAccurancy, ctr, cr, approve,
     campaignSave=campaign.replace(' | ', '_')
     with open(f'./templates/tables/fullTable_{campaignSave}.html', 'w+') as f:
         f.write(df_save.to_html())
+    loger.mainEnd()
     return [d, meanClicks, stdClicks, medianClicks,
             meanPostbacks, stdPostbacks, medianPostbacks,
             meanConfirmPostbacks, stdConfirmPostbacks, medianConfirmPostbacks]

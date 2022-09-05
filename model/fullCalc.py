@@ -1,5 +1,6 @@
 # Project script
 from model.main import *
+from services.loger import Loger
 
 def resultParser(result):
     return dict(accurancy=result[0], mean=result[1],
@@ -44,10 +45,11 @@ def getCampaignStatByName(host, user, password, campaign):
 def fullCalc(pred_n, minAccurancy, campaignId,
              campaignName, custom_approve, custom_bid):
     load_dotenv()
+    loger=Loger()
     host = os.environ.get("HOST")
     user = os.environ.get("CLICKHOUSE_USERNAME")
     password = os.environ.get("PASSWORD")
-
+    loger.calcStart()
     if campaignId is not None:
         campaign = getCampaignById(host=host,
                                    user=user,
@@ -56,6 +58,7 @@ def fullCalc(pred_n, minAccurancy, campaignId,
     elif campaignName is not None:
         campaign = campaignName
 
+    loger.campaignIdFound(campaign)
     try:
         bid, approve, ctr, cr, epc, ecpm = getCampaignStatByName(host=host,
                                                                  user=user,
@@ -64,6 +67,9 @@ def fullCalc(pred_n, minAccurancy, campaignId,
     except ValueError:
         return {'err': "No shows"}
 
+    loger.statLoad({'bid': bid, 'approve': approve,
+                    'ctr': ctr, 'cr': cr, 'epc': epc, 
+                    'ecpm': ecpm})
     if custom_bid is None:
         custom_bid = bid
     if custom_approve is None:

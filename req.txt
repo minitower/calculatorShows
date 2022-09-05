@@ -1,0 +1,11 @@
+
+gzip,deflate,br
+ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3
+text/html,application/xhtml+xml,image/avif,image/webp,application/xml;q=0.9,*/*;q=0.8
+ImmutableList(['127.0.0.1'])
+None
+ImmutableMultiDict([])
+fullCalculator
+Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0
+CombinedMultiDict([ImmutableMultiDict([])])
+<_io.BytesIO object at 0x000001ED579CD620>
