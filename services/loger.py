@@ -1,10 +1,15 @@
+from asyncio import streams
+from http import server
 import os
 import flask
+from datetime import datetime
+import uuid
 
 class Loger:
     
     def __init__(self, full_model=None, full_server=None,
-                        full_services=None, short=None):
+                        full_services=None, short=None,
+                        streamPath=None):
         """
         Class for init loger with pathes to main log file
         in server. Each path have default value and can be
@@ -29,10 +34,16 @@ class Loger:
             self.short='../logs/full_logs/model_log.log'
         else:
             self.short = short
+        
+        if not streamPath:
+            self.streamPath='../logs/streams/'
+        else:
+            self.streamPath=streamPath
         self.mode_translate = {'model': self.full_model,
                                'server': self.full_server,
                                'services':self.full_services,
-                               'short': self.short}
+                               'short': self.short,
+                               'streamPath': self.streamPath}
             
         
     def writeInFile(self, message: str, mode: str):
@@ -60,7 +71,33 @@ class Loger:
         Args
             req: request - request from client
         """
-        ip
+        path=req.__str__().split("'")[1]
+        method=req.__str__().split("[")[1].replace(']', '')\
+                            .replace('>', '')
+        sendArguments=req.args.__str__()
+        endpoint=req.args.__str__()
+        userAgent=req.user_agent.__str__()
+        stream=req.stream
+        reqUUID=uuid.uuid4().__str__()
+        streamUUID=uuid.uuid4().__str__()
+        streamFilename = self.streamPath+streamUUID.__str__()+'.stream'
+        timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
+        with open(streamFilename, 'wb') as f:
+            f.write(stream)
+        reqTemplate=f"""
+            {timestamp}: {method} method in request {reqUUID} to path {path}:\n
+                1. args in request: {sendArguments};\n
+                2. Python func in server.py (endpoint): {endpoint};\n
+                3. User agent: {userAgent};\n
+                4. Stream filename: {streamFilename};\n
+                5. Stream UUID: {streamUUID};\n
+        """
+        self.writeInFile(reqTemplate, 'server')
+    
+    def responseMessage(self, res: flask.Response):
+        return None
+        
+        
         
 if __name__ == "__main__":
     loger = Loger()
